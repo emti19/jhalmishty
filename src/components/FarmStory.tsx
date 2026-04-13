@@ -49,29 +49,27 @@ export function FarmStory() {
 
           <div>
             <p className="text-[#F4A261] font-medium text-sm mb-3 tracking-wide uppercase">
-              Our Story
+              আমাদের গল্প
             </p>
+
             <h2 className="text-3xl sm:text-4xl font-bold text-[#1A2E28] mb-6">
-              Rooted in nature, <br />grown with care
+              প্রকৃতির ছোঁয়ায়, <br /> যত্নে বেড়ে ওঠা
             </h2>
+
             <p className="text-[#4a6b5f] leading-relaxed mb-6">
-              Verdure began in 2018 when our founders realized that truly organic food was
-              hard to find and often came in uninspiring packaging. We set out to change
-              that — building direct relationships with small family farms committed to
-              regenerative agriculture.
+              JhalMishty-এর যাত্রা শুরু হয় ২০১৮ সালে, যখন আমাদের প্রতিষ্ঠাতারা বুঝতে পারেন যে সত্যিকারের অর্গানিক খাবার খুঁজে পাওয়া কঠিন এবং সেগুলোর উপস্থাপনাও তেমন আকর্ষণীয় নয়। আমরা এই ধারণা বদলাতে চেয়েছি—ছোট পারিবারিক খামারের সঙ্গে সরাসরি সম্পর্ক গড়ে তুলে, যারা টেকসই কৃষিতে বিশ্বাসী।
             </p>
+
             <p className="text-[#4a6b5f] leading-relaxed mb-8">
-              Today, we partner with over 30 farms across the region, each verified for
-              their organic practices and dedication to soil health. When you shop with us,
-              you're supporting real people who care deeply about what they grow.
+              আজ আমরা ৩০টিরও বেশি খামারের সঙ্গে কাজ করছি, যাদের প্রত্যেকটি অর্গানিক পদ্ধতি ও মাটির স্বাস্থ্যের প্রতি তাদের প্রতিশ্রুতির জন্য যাচাইকৃত। আমাদের থেকে কেনাকাটা মানে হলো এমন মানুষের পাশে থাকা, যারা তাদের উৎপাদিত পণ্যের প্রতি সত্যিই যত্নশীল।
             </p>
 
             <div className="flex flex-wrap gap-8 mb-8">
               {[
-                { value: '2018', label: 'Founded' },
-                { value: '30+', label: 'Farm Partners' },
-                { value: '500+', label: 'Organic Products' },
-                { value: '12k+', label: 'Happy Customers' },
+                { value: '২০১৮', label: 'প্রতিষ্ঠিত' },
+                { value: '৩০+', label: 'খামার অংশীদার' },
+                { value: '৫০০+', label: 'অর্গানিক পণ্য' },
+                { value: '১২ হাজার+', label: 'সন্তুষ্ট গ্রাহক' },
               ].map(({ value, label }) => (
                 <div key={label}>
                   <p className="text-2xl font-bold text-[#2F5D50]">{value}</p>
@@ -80,13 +78,13 @@ export function FarmStory() {
               ))}
             </div>
 
-            <a
+            {/* <a
               href="#"
               className="inline-flex items-center gap-2 text-[#2F5D50] font-semibold hover:gap-3 transition-all duration-200 group"
             >
               Meet Our Farms
               <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-            </a>
+            </a> */}
           </div>
         </div>
       </div>
