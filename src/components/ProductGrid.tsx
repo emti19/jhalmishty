@@ -6,9 +6,10 @@ import { CategoryFilter } from './CategoryFilter';
 interface ProductGridProps {
   products: Product[];
   onAddToCart: (product: Product) => void;
+  loading?: boolean;
 }
 
-export function ProductGrid({ products, onAddToCart }: ProductGridProps) {
+export function ProductGrid({ products, onAddToCart, loading = false }: ProductGridProps) {
   const [activeCategory, setActiveCategory] = useState('all');
 
   const filtered = activeCategory === 'all'
@@ -37,13 +38,25 @@ export function ProductGrid({ products, onAddToCart }: ProductGridProps) {
         </div>
 
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 lg:gap-6">
-          {filtered.map((product) => (
-            <ProductCard
-              key={product.id}
-              product={product}
-              onAddToCart={onAddToCart}
-            />
-          ))}
+          {loading ? (
+            // Loading skeleton
+            Array.from({ length: 8 }).map((_, i) => (
+              <div key={i} className="bg-white rounded-lg p-4 shadow-sm animate-pulse">
+                <div className="w-full h-48 bg-gray-200 rounded-lg mb-4"></div>
+                <div className="h-4 bg-gray-200 rounded mb-2"></div>
+                <div className="h-4 bg-gray-200 rounded w-3/4 mb-2"></div>
+                <div className="h-6 bg-gray-200 rounded w-1/2"></div>
+              </div>
+            ))
+          ) : (
+            filtered.map((product) => (
+              <ProductCard
+                key={product.id}
+                product={product}
+                onAddToCart={onAddToCart}
+              />
+            ))
+          )}
         </div>
 
         {filtered.length === 0 && (

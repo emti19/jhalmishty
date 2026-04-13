@@ -6,51 +6,77 @@ import { Benefits } from './components/Benefits';
 import { FarmStory } from './components/FarmStory';
 import { Testimonials } from './components/Testimonials';
 import { Footer } from './components/Footer';
-import { CartSidebar } from './components/CartSidebar';
-import { AdminProducts } from './components/AdminProducts';
+import { CartSidebar } from './components/CartSidebar'; 
 import { ProductsPage } from './components/ProductsPage';
 import { CheckoutPage } from './components/CheckoutPage';
 import { OrderConfirmationPage } from './components/OrderConfirmationPage';
+import { AdminProducts } from './components/AdminProducts';
 import { useCart } from './hooks/useCart';
-import { Product } from './types';
-import { Order } from './types';
+import { getProducts, insertProduct, updateProduct as updateProductDb, deleteProduct as deleteProductDb } from './services/productService';
+import { Product, Order } from './types';
 import { products as initialProducts } from './data/products';
 
 function App() {
   const { cart, addToCart, removeFromCart, updateQuantity, clearCart } = useCart();
   const [cartOpen, setCartOpen] = useState(false);
-  const [products, setProducts] = useState<Product[]>(() => {
-    if (typeof window === 'undefined') {
-      return initialProducts;
-    }
-
-    try {
-      const saved = localStorage.getItem('products');
-      return saved ? JSON.parse(saved) as Product[] : initialProducts;
-    } catch {
-      return initialProducts;
-    }
-  });
+  const [products, setProducts] = useState<Product[]>(initialProducts);
+  const [loadingProducts, setLoadingProducts] = useState(true);
 
   useEffect(() => {
-    localStorage.setItem('products', JSON.stringify(products));
-  }, [products]);
+    async function loadProducts() {
+      try {
+        const fetchedProducts = await getProducts();
+        if (fetchedProducts !== null) {
+          // Use database products (even if empty) - only fallback to local on error
+          setProducts(fetchedProducts);
+        }
+      } catch (error) {
+        console.error('Failed to load products from database:', error);
+        // Keep local products as fallback
+      } finally {
+        setLoadingProducts(false);
+      }
+    }
+
+    loadProducts();
+  }, []);
 
   const handleAddToCart = (product: Product) => {
     addToCart(product);
     setCartOpen(true);
   };
 
-  const handleAddProduct = (product: Product) => {
-    setProducts((current) => [product, ...current]);
+  const handleAddProduct = async (product: Product) => {
+    try {
+      const created = await insertProduct(product);
+      if (created) {
+        setProducts((current) => [created, ...current]);
+      }
+    } catch (error) {
+      console.error('Failed to add product:', error);
+    }
   };
 
-  const handleUpdateProduct = (updatedProduct: Product) => {
-    setProducts((current) => current.map((item) => item.id === updatedProduct.id ? updatedProduct : item));
+  const handleUpdateProduct = async (updatedProduct: Product) => {
+    try {
+      const updated = await updateProductDb(updatedProduct);
+      if (updated) {
+        setProducts((current) => current.map((item) => (item.id === updated.id ? updated : item)));
+      }
+    } catch (error) {
+      console.error('Failed to update product:', error);
+    }
   };
 
-  const handleDeleteProduct = (id: string) => {
-    setProducts((current) => current.filter((item) => item.id !== id));
+  const handleDeleteProduct = async (id: string) => {
+    try {
+      const deleted = await deleteProductDb(id);
+      if (deleted) {
+        setProducts((current) => current.filter((item) => item.id !== id));
+      }
+    } catch (error) {
+      console.error('Failed to delete product:', error);
+    }
   };
 
   const handleOrderComplete = (order: Order) => {
@@ -64,6 +90,7 @@ function App() {
     <main>
       <Hero />
       <Benefits />
+      <ProductsPage products={products} onAddToCart={handleAddToCart} loading={loadingProducts} />
       <FarmStory />
       <Testimonials />
       {/* <Newsletter /> */}
@@ -83,6 +110,7 @@ function App() {
               <ProductsPage
                 products={products}
                 onAddToCart={handleAddToCart}
+                loading={loadingProducts}
               />
             }
           />

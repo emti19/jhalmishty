@@ -1,6 +1,7 @@
 import { useState, type FormEvent } from 'react';
 import { categories } from '../data/products';
 import { Product } from '../types';
+import { supabase } from '../lib/supabase';
 
 interface AdminProductsProps {
   products: Product[];
@@ -26,6 +27,8 @@ export function AdminProducts({ products, onAdd, onUpdate, onDelete }: AdminProd
   const [form, setForm] = useState(initialFormState);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [error, setError] = useState('');
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [uploading, setUploading] = useState(false);
 
   const categoryOptions = categories.filter((cat) => cat.id !== 'all');
 
@@ -33,6 +36,8 @@ export function AdminProducts({ products, onAdd, onUpdate, onDelete }: AdminProd
     setForm(initialFormState);
     setEditingId(null);
     setError('');
+    setSelectedFile(null);
+    setUploading(false);
   };
 
   const handleChange = (field: keyof typeof form, value: string | boolean) => {
@@ -42,7 +47,49 @@ export function AdminProducts({ products, onAdd, onUpdate, onDelete }: AdminProd
     }));
   };
 
-  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      setSelectedFile(file);
+      // Clear the image URL when a file is selected
+      setForm((current) => ({
+        ...current,
+        image: '',
+      }));
+    }
+  };
+
+  const uploadImage = async (file: File): Promise<string | null> => {
+    try {
+      setUploading(true);
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${Math.random()}.${fileExt}`;
+      const filePath = `products/${fileName}`;
+
+      const { error } = await supabase.storage
+        .from('product-images')
+        .upload(filePath, file);
+
+      if (error) {
+        console.error('Error uploading image:', error);
+        return null;
+      }
+
+      // Get the public URL
+      const { data: { publicUrl } } = supabase.storage
+        .from('product-images')
+        .getPublicUrl(filePath);
+
+      return publicUrl;
+    } catch (error) {
+      console.error('Error uploading image:', error);
+      return null;
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
     if (!form.name.trim() || !form.price.trim() || !form.category.trim()) {
@@ -50,14 +97,26 @@ export function AdminProducts({ products, onAdd, onUpdate, onDelete }: AdminProd
       return;
     }
 
+    let imageUrl = form.image;
+
+    // Upload file if selected
+    if (selectedFile) {
+      const uploadedUrl = await uploadImage(selectedFile);
+      if (!uploadedUrl) {
+        setError('Failed to upload image. Please try again.');
+        return;
+      }
+      imageUrl = uploadedUrl;
+    }
+
     const product: Product = {
-      id: editingId ?? Date.now().toString(),
+      id: editingId ?? Math.floor(Math.random() * 1000000).toString(), // Generate numeric ID as string
       name: form.name.trim(),
       description: form.description.trim(),
       price: Number(form.price),
       unit: form.unit.trim() || 'each',
       category: form.category as Product['category'],
-      image: form.image.trim() || 'https://images.pexels.com/photos/102104/pexels-photo-102104.jpeg?auto=compress&cs=tinysrgb&w=600',
+      image: imageUrl || 'https://images.pexels.com/photos/102104/pexels-photo-102104.jpeg?auto=compress&cs=tinysrgb&w=600',
       badge: form.badge.trim() || undefined,
       rating: Number(form.rating),
       reviews: Number(form.reviews),
@@ -88,6 +147,8 @@ export function AdminProducts({ products, onAdd, onUpdate, onDelete }: AdminProd
       inStock: product.inStock,
     });
     setError('');
+    setSelectedFile(null);
+    setUploading(false);
   };
 
   return (
@@ -226,14 +287,23 @@ export function AdminProducts({ products, onAdd, onUpdate, onDelete }: AdminProd
               </label>
 
               <label className="block text-sm font-medium text-[#334155]">
-                Image URL
+                Product Image
                 <input
-                  type="text"
-                  value={form.image}
-                  onChange={(event) => handleChange('image', event.target.value)}
-                  placeholder="https://..."
-                  className="mt-2 w-full rounded-2xl border border-[#D1D5DB] bg-[#F8FAFC] px-4 py-3 text-sm text-[#0F172A] focus:border-[#2F5D50] focus:outline-none"
+                  type="file"
+                  accept="image/*"
+                  onChange={handleFileChange}
+                  className="mt-2 w-full rounded-2xl border border-[#D1D5DB] bg-[#F8FAFC] px-4 py-3 text-sm text-[#0F172A] focus:border-[#2F5D50] focus:outline-none file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-[#2F5D50] file:text-white hover:file:bg-[#264d43]"
+                  disabled={uploading}
                 />
+                {uploading && (
+                  <p className="mt-2 text-sm text-[#F4A261]">Uploading image...</p>
+                )}
+                {selectedFile && (
+                  <p className="mt-2 text-sm text-[#2F5D50]">Selected: {selectedFile.name}</p>
+                )}
+                {!selectedFile && form.image && (
+                  <p className="mt-2 text-sm text-[#4a6b5f]">Current image: {form.image}</p>
+                )}
               </label>
 
               <div className="grid gap-4 sm:grid-cols-2">
