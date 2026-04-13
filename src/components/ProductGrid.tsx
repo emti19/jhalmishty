@@ -1,14 +1,14 @@
 import { useState } from 'react';
 import { Product } from '../types';
-import { products } from '../data/products';
 import { ProductCard } from './ProductCard';
 import { CategoryFilter } from './CategoryFilter';
 
 interface ProductGridProps {
+  products: Product[];
   onAddToCart: (product: Product) => void;
 }
 
-export function ProductGrid({ onAddToCart }: ProductGridProps) {
+export function ProductGrid({ products, onAddToCart }: ProductGridProps) {
   const [activeCategory, setActiveCategory] = useState('all');
 
   const filtered = activeCategory === 'all'

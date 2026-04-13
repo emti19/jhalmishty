@@ -1,4 +1,5 @@
 import { ArrowRight, Award, Home, Leaf } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import balachao from '../../assets/balachao.png'
 
 export function Hero() {
@@ -26,13 +27,13 @@ export function Hero() {
               প্রতিটি উপাদান সতেজতা, স্বাদ এবং আপনার সুস্থতার কথা মাথায় রেখে যত্নসহকারে নির্বাচন করা হয়।
             </p>
             <div className="flex flex-wrap gap-4 mb-12">
-              <a
-                href="#products"
+              <Link
+                to="/products"
                 className="inline-flex items-center gap-2 bg-[#2F5D50] hover:bg-[#264d43] text-white px-7 py-3.5 rounded-full font-medium transition-all duration-200 hover:shadow-lg hover:shadow-[#2F5D50]/20 hover:-translate-y-0.5"
               >
                 কিনুন
                 <ArrowRight className="w-4 h-4" />
-              </a>
+              </Link>
               <a
                 href="#ourstory"
                 className="inline-flex items-center gap-2 border border-[#2F5D50]/30 text-[#2F5D50] px-7 py-3.5 rounded-full font-medium hover:bg-[#2F5D50]/5 transition-all duration-200"

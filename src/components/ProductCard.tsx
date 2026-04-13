@@ -24,7 +24,7 @@ export function ProductCard({ product, onAddToCart }: ProductCardProps) {
         <button
           onClick={() => onAddToCart(product)}
           className="absolute bottom-3 right-3 w-10 h-10 bg-[#2F5D50] text-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300 hover:bg-[#264d43] hover:scale-110 shadow-lg"
-          aria-label={`Add ${product.name} to cart`}
+          aria-label={`Add ৳{product.name} to cart`}
         >
           <ShoppingCart className="w-4 h-4" />
         </button>
@@ -45,7 +45,7 @@ export function ProductCard({ product, onAddToCart }: ProductCardProps) {
         <div className="flex items-center justify-between">
           <div>
             <span className="text-lg font-bold text-[#2F5D50]">
-              ${product.price.toFixed(2)}
+              ৳{product.price.toFixed(2)}
             </span>
             <span className="text-xs text-[#4a6b5f]/60 ml-1">{product.unit}</span>
           </div>

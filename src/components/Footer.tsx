@@ -1,9 +1,10 @@
-import { Leaf, Instagram, Twitter, Facebook } from 'lucide-react';
+import {  Instagram, Twitter, Facebook } from 'lucide-react';
+import Jhalmishty from '../../assets/jmlogo.png'
 
 const links = {
-  Shop: ['Fresh Produce', 'Dairy & Eggs', 'Pantry Staples', 'Herbs & Spices', 'Seasonal Box'],
-  Company: ['Our Story', 'Farm Partners', 'Sustainability', 'Press', 'Careers'],
-  Help: ['FAQ', 'Delivery Info', 'Returns', 'Contact Us', 'Gift Cards'],
+  'কেনাকাটা': ['তাজা পণ্য', 'দুগ্ধজাত এবং ডিম', 'রান্নাঘরের প্রয়োজনীয়', 'মসলা এবং ভেষজ', 'মৌসুমী বাক্স'],
+  'কোম্পানি': ['আমাদের গল্প', 'খামার অংশীদার', 'টেকসইতা', 'প্রেস', 'কর্মসংস্থান'],
+  'সাহায্য': ['সাধারণ প্রশ্ন', 'ডেলিভারি তথ্য', 'রিটার্ন', 'যোগাযোগ করুন', 'উপহার কার্ড'],
 };
 
 export function Footer() {
@@ -13,14 +14,14 @@ export function Footer() {
         <div className="grid sm:grid-cols-2 lg:grid-cols-5 gap-10 mb-12">
           <div className="sm:col-span-2">
             <div className="flex items-center gap-2 mb-4">
-              <div className="w-8 h-8 bg-[#2F5D50] rounded-lg flex items-center justify-center">
-                <Leaf className="w-4 h-4 text-[#A8C686]" />
+              <div className="w-20 h-20 rounded-lg flex items-center justify-center">
+                <img src={Jhalmishty} alt="JhalMishty" />
               </div>
-              <span className="font-bold text-xl tracking-tight">Verdure</span>
+              <span className="font-bold text-xl tracking-tight">JhalMishty</span>
             </div>
             <p className="text-white/50 text-sm leading-relaxed mb-6 max-w-xs">
-              Bringing the finest organic produce from trusted farms directly to your table.
-              Real food, real farmers, real goodness.
+              বিশ্বস্ত খামার থেকে সেরা অর্গানিক পণ্য আপনার টেবিলে সরাসরি পৌঁছে দিচ্ছি।
+              প্রকৃত খাবার, প্রকৃত কৃষক।
             </p>
             <div className="flex gap-3">
               {[Instagram, Twitter, Facebook].map((Icon, i) => (
@@ -58,10 +59,10 @@ export function Footer() {
 
         <div className="pt-8 border-t border-white/8 flex flex-col sm:flex-row items-center justify-between gap-4">
           <p className="text-white/30 text-xs">
-            &copy; {new Date().getFullYear()} Verdure Organics. All rights reserved.
+            &copy; {new Date().getFullYear()} JhalMishty। সর্বস্বত্ব সংরক্ষিত।
           </p>
           <div className="flex gap-5">
-            {['Privacy Policy', 'Terms of Service', 'Cookie Policy'].map((item) => (
+            {['গোপনীয়তা নীতি', 'সেবা শর্তাবলী', 'কুকি নীতি'].map((item) => (
               <a key={item} href="#" className="text-xs text-white/30 hover:text-white/60 transition-colors">
                 {item}
               </a>

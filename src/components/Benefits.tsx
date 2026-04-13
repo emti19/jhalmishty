@@ -48,7 +48,7 @@ export function Benefits() {
             >
               <div
                 className="w-12 h-12 rounded-xl flex items-center justify-center mb-4"
-                style={{ backgroundColor: `${color}20` }}
+                style={{ backgroundColor: `৳{color}20` }}
               >
                 <Icon className="w-6 h-6" style={{ color }} />
               </div>

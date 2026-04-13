@@ -1,5 +1,6 @@
-import { ShoppingCart, Leaf, Search, Menu, X } from 'lucide-react';
+import { ShoppingCart, Search, Menu, X } from 'lucide-react';
 import { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { Cart } from '../types';
 import logo from '../../assets/jhalmistylogo.png';
 
@@ -20,7 +21,13 @@ export function Header({ cart, onCartOpen }: HeaderProps) {
           </div>
 
           <nav className="hidden md:flex items-center gap-8">
-            {['Shop', 'Our Farm', 'Recipes', 'About'].map((item) => (
+            <Link
+              to="/products"
+              className="text-sm font-medium text-[#2F5D50]/70 hover:text-[#2F5D50] transition-colors duration-200"
+            >
+              Shop
+            </Link>
+            {['Our Farm', 'Recipes', 'About'].map((item) => (
               <a
                 key={item}
                 href="#"
@@ -29,6 +36,12 @@ export function Header({ cart, onCartOpen }: HeaderProps) {
                 {item}
               </a>
             ))}
+            <Link
+              to="/admin"
+              className="text-sm font-medium text-[#2F5D50]/70 hover:text-[#2F5D50] transition-colors duration-200"
+            >
+              Admin
+            </Link>
           </nav>
 
           <div className="flex items-center gap-3">
@@ -63,7 +76,13 @@ export function Header({ cart, onCartOpen }: HeaderProps) {
 
       {mobileMenuOpen && (
         <div className="md:hidden bg-[#FAF7F2] border-t border-[#A8C686]/20 px-4 py-4 flex flex-col gap-3">
-          {['Shop', 'Our Farm', 'Recipes', 'About'].map((item) => (
+          <Link
+            to="/products"
+            className="text-sm font-medium text-[#2F5D50]/70 hover:text-[#2F5D50] py-2 transition-colors"
+          >
+            Shop
+          </Link>
+          {['Our Farm', 'Recipes', 'About'].map((item) => (
             <a
               key={item}
               href="#"
@@ -72,6 +91,12 @@ export function Header({ cart, onCartOpen }: HeaderProps) {
               {item}
             </a>
           ))}
+          <Link
+            to="/admin"
+            className="text-sm font-medium text-[#2F5D50]/70 hover:text-[#2F5D50] py-2 transition-colors"
+          >
+            Admin
+          </Link>
         </div>
       )}
     </header>

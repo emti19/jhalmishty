@@ -24,3 +24,28 @@ export interface Cart {
   total: number;
   count: number;
 }
+
+export interface ShippingAddress {
+  firstName: string;
+  lastName: string;
+  email: string;
+  phone: string;
+  address: string;
+  city: string;
+  state: string;
+  zipCode: string;
+  country: string;
+}
+
+export interface Order {
+  id: string;
+  items: CartItem[];
+  shippingAddress: ShippingAddress;
+  paymentMethod: 'card' | 'paypal' | 'bank';
+  subtotal: number;
+  shipping: number;
+  tax: number;
+  total: number;
+  status: 'pending' | 'confirmed' | 'shipped' | 'delivered';
+  createdAt: Date;
+}

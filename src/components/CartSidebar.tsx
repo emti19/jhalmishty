@@ -1,4 +1,5 @@
 import { X, ShoppingBag, Plus, Minus, Trash2, ArrowRight } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import { Cart } from '../types';
 
 interface CartSidebarProps {
@@ -7,9 +8,10 @@ interface CartSidebarProps {
   onClose: () => void;
   onUpdateQuantity: (id: string, qty: number) => void;
   onRemove: (id: string) => void;
+  onCheckout?: () => void;
 }
 
-export function CartSidebar({ cart, isOpen, onClose, onUpdateQuantity, onRemove }: CartSidebarProps) {
+export function CartSidebar({ cart, isOpen, onClose, onUpdateQuantity, onRemove, onCheckout }: CartSidebarProps) {
   return (
     <>
       {isOpen && (
@@ -85,7 +87,7 @@ export function CartSidebar({ cart, isOpen, onClose, onUpdateQuantity, onRemove 
                       </div>
                       <div className="flex items-center gap-2">
                         <span className="text-sm font-bold text-[#2F5D50]">
-                          ${(product.price * quantity).toFixed(2)}
+                          ৳{(product.price * quantity).toFixed(2)}
                         </span>
                         <button
                           onClick={() => onRemove(product.id)}
@@ -103,23 +105,30 @@ export function CartSidebar({ cart, isOpen, onClose, onUpdateQuantity, onRemove 
             <div className="px-6 py-5 border-t border-[#A8C686]/20 bg-white">
               <div className="flex items-center justify-between mb-1">
                 <span className="text-sm text-[#4a6b5f]">Subtotal</span>
-                <span className="font-bold text-[#1A2E28]">${cart.total.toFixed(2)}</span>
+                <span className="font-bold text-[#1A2E28]">৳{cart.total.toFixed(2)}</span>
               </div>
               <div className="flex items-center justify-between mb-5">
                 <span className="text-sm text-[#4a6b5f]">Delivery</span>
                 <span className="text-sm font-medium text-[#2F5D50]">
-                  {cart.total >= 50 ? 'Free' : '$5.99'}
+                  {cart.total >= 50 ? 'Free' : '৳5.99'}
                 </span>
               </div>
               {cart.total < 50 && (
                 <p className="text-xs text-center text-[#F4A261] mb-4">
-                  Add ${(50 - cart.total).toFixed(2)} more for free delivery!
+                  Add ৳{(50 - cart.total).toFixed(2)} more for free delivery!
                 </p>
               )}
-              <button className="w-full bg-[#2F5D50] hover:bg-[#264d43] text-white py-3.5 rounded-full font-semibold flex items-center justify-center gap-2 transition-all duration-200 hover:shadow-lg hover:shadow-[#2F5D50]/20">
+              <Link
+                to="/checkout"
+                onClick={() => {
+                  onClose();
+                  onCheckout?.();
+                }}
+                className="w-full bg-[#2F5D50] hover:bg-[#264d43] text-white py-3.5 rounded-full font-semibold flex items-center justify-center gap-2 transition-all duration-200 hover:shadow-lg hover:shadow-[#2F5D50]/20"
+              >
                 Checkout
                 <ArrowRight className="w-4 h-4" />
-              </button>
+              </Link>
             </div>
           </>
         )}

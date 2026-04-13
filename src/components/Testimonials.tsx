@@ -2,25 +2,25 @@ import { Star } from 'lucide-react';
 
 const testimonials = [
   {
-    name: 'Sarah Mitchell',
-    role: 'Home Chef',
+    name: 'সায়মা রহমান',
+    role: 'গৃহিণী ও রাঁধুনি',
     avatar: 'https://images.pexels.com/photos/1181690/pexels-photo-1181690.jpeg?auto=compress&cs=tinysrgb&w=150',
     rating: 5,
-    text: "The quality is incomparable. I've tried many organic delivery services but Verdure's produce genuinely tastes different — like it was picked this morning.",
+    text: "গুণগত মান সত্যিই তুলনাহীন। আমি অনেক অর্গানিক ডেলিভারি সার্ভিস ব্যবহার করেছি, কিন্তু JhalMishty-এর সবজির স্বাদ একেবারেই আলাদা — যেন আজ সকালেই তোলা হয়েছে।",
   },
   {
-    name: 'James Okafor',
-    role: 'Nutritionist',
+    name: 'ইমরান শাহরিয়ার',
+    role: 'পুষ্টিবিদ',
     avatar: 'https://images.pexels.com/photos/2379005/pexels-photo-2379005.jpeg?auto=compress&cs=tinysrgb&w=150',
     rating: 5,
-    text: "I recommend Verdure to all my clients. Knowing exactly where food comes from and how it's grown makes a real difference in how we eat and feel.",
+    text: "আমি আমার সব ক্লায়েন্টকে JhalMishty সুপারিশ করি। খাবার কোথা থেকে আসে এবং কীভাবে উৎপাদিত হয় তা জানা আমাদের খাওয়া ও সুস্থতার উপর বড় প্রভাব ফেলে।",
   },
   {
-    name: 'Elena Vasquez',
-    role: 'Mother of three',
+    name: 'নাজিফা ফিরুজ',
+    role: 'তিন সন্তানের মা',
     avatar: 'https://images.pexels.com/photos/1239291/pexels-photo-1239291.jpeg?auto=compress&cs=tinysrgb&w=150',
     rating: 5,
-    text: "My kids actually eat their vegetables now! The flavors are so vibrant and fresh. The weekly delivery has completely transformed our family dinners.",
+    text: "আমার বাচ্চারা এখন সত্যিই সবজি খায়! স্বাদ এতটাই তাজা ও প্রাণবন্ত। সাপ্তাহিক ডেলিভারি আমাদের পরিবারের ডিনার পুরোপুরি বদলে দিয়েছে।",
   },
 ];
 
@@ -30,10 +30,10 @@ export function Testimonials() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-12">
           <p className="text-[#F4A261] font-medium text-sm mb-2 tracking-wide uppercase">
-            Testimonials
+            গ্রাহকদের মতামত
           </p>
           <h2 className="text-3xl sm:text-4xl font-bold text-[#1A2E28]">
-            Loved by food lovers
+            খাবারপ্রেমীদের ভালোবাসা
           </h2>
         </div>
 
