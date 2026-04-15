@@ -61,7 +61,10 @@ export function Footer() {
           <p className="text-white/30 text-xs">
             &copy; {new Date().getFullYear()} JhalMishty। সর্বস্বত্ব সংরক্ষিত।
           </p>
-          <div className="flex gap-5">
+          <div className="flex gap-5 items-center">
+            <a href="/admin/login" className="text-xs text-white/30 hover:text-white/60 transition-colors">
+              Admin login
+            </a>
             {['গোপনীয়তা নীতি', 'সেবা শর্তাবলী', 'কুকি নীতি'].map((item) => (
               <a key={item} href="#" className="text-xs text-white/30 hover:text-white/60 transition-colors">
                 {item}

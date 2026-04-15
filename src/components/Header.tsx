@@ -36,12 +36,6 @@ export function Header({ cart, onCartOpen }: HeaderProps) {
                 {item}
               </a>
             ))}
-            <Link
-              to="/admin"
-              className="text-sm font-medium text-[#2F5D50]/70 hover:text-[#2F5D50] transition-colors duration-200"
-            >
-              Admin
-            </Link>
           </nav>
 
           <div className="flex items-center gap-3">
@@ -91,12 +85,6 @@ export function Header({ cart, onCartOpen }: HeaderProps) {
               {item}
             </a>
           ))}
-          <Link
-            to="/admin"
-            className="text-sm font-medium text-[#2F5D50]/70 hover:text-[#2F5D50] py-2 transition-colors"
-          >
-            Admin
-          </Link>
         </div>
       )}
     </header>

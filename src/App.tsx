@@ -1,23 +1,32 @@
-import { useEffect, useState } from 'react';
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
-import { Header } from './components/Header';
-import { Hero } from './components/Hero';
-import { Benefits } from './components/Benefits';
-import { FarmStory } from './components/FarmStory';
-import { Testimonials } from './components/Testimonials';
-import { Footer } from './components/Footer';
-import { CartSidebar } from './components/CartSidebar'; 
-import { ProductsPage } from './components/ProductsPage';
-import { CheckoutPage } from './components/CheckoutPage';
-import { OrderConfirmationPage } from './components/OrderConfirmationPage';
-import { AdminProducts } from './components/AdminProducts';
-import { useCart } from './hooks/useCart';
-import { getProducts, insertProduct, updateProduct as updateProductDb, deleteProduct as deleteProductDb } from './services/productService';
-import { Product, Order } from './types';
-import { products as initialProducts } from './data/products';
+import { useEffect, useState } from "react";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { Header } from "./components/Header";
+import { Hero } from "./components/Hero";
+import { Benefits } from "./components/Benefits";
+import { FarmStory } from "./components/FarmStory";
+import { Testimonials } from "./components/Testimonials";
+import { Footer } from "./components/Footer";
+import { CartSidebar } from "./components/CartSidebar";
+import { ProductsPage } from "./components/ProductsPage";
+import { CheckoutPage } from "./components/CheckoutPage";
+import { OrderConfirmationPage } from "./components/OrderConfirmationPage";
+import { AdminProducts } from "./components/AdminProducts";
+import { AdminLogin } from "./components/AdminLogin";
+import { useCart } from "./hooks/useCart";
+import { useAuth } from "./hooks/useAuth";
+import {
+  getProducts,
+  insertProduct,
+  updateProduct as updateProductDb,
+  deleteProduct as deleteProductDb,
+} from "./services/productService";
+import { Product, Order } from "./types";
+import { products as initialProducts } from "./data/products";
 
 function App() {
-  const { cart, addToCart, removeFromCart, updateQuantity, clearCart } = useCart();
+  const { cart, addToCart, removeFromCart, updateQuantity, clearCart } =
+    useCart();
+  const { session, loading: authLoading, signOut } = useAuth();
   const [cartOpen, setCartOpen] = useState(false);
   const [products, setProducts] = useState<Product[]>(initialProducts);
   const [loadingProducts, setLoadingProducts] = useState(true);
@@ -31,7 +40,7 @@ function App() {
           setProducts(fetchedProducts);
         }
       } catch (error) {
-        console.error('Failed to load products from database:', error);
+        console.error("Failed to load products from database:", error);
         // Keep local products as fallback
       } finally {
         setLoadingProducts(false);
@@ -53,7 +62,7 @@ function App() {
         setProducts((current) => [created, ...current]);
       }
     } catch (error) {
-      console.error('Failed to add product:', error);
+      console.error("Failed to add product:", error);
     }
   };
 
@@ -61,10 +70,12 @@ function App() {
     try {
       const updated = await updateProductDb(updatedProduct);
       if (updated) {
-        setProducts((current) => current.map((item) => (item.id === updated.id ? updated : item)));
+        setProducts((current) =>
+          current.map((item) => (item.id === updated.id ? updated : item)),
+        );
       }
     } catch (error) {
-      console.error('Failed to update product:', error);
+      console.error("Failed to update product:", error);
     }
   };
 
@@ -75,14 +86,14 @@ function App() {
         setProducts((current) => current.filter((item) => item.id !== id));
       }
     } catch (error) {
-      console.error('Failed to delete product:', error);
+      console.error("Failed to delete product:", error);
     }
   };
 
   const handleOrderComplete = (order: Order) => {
     // Clear the cart after successful order
     // Note: In a real app, you'd want to persist orders to a backend
-    console.log('Order completed:', order);
+    console.log("Order completed:", order);
     clearCart();
   };
 
@@ -90,7 +101,11 @@ function App() {
     <main>
       <Hero />
       <Benefits />
-      <ProductsPage products={products} onAddToCart={handleAddToCart} loading={loadingProducts} />
+      <ProductsPage
+        products={products}
+        onAddToCart={handleAddToCart}
+        loading={loadingProducts}
+      />
       <FarmStory />
       <Testimonials />
       {/* <Newsletter /> */}
@@ -117,22 +132,45 @@ function App() {
           <Route
             path="/checkout"
             element={
-              <CheckoutPage
-                cart={cart}
-                onOrderComplete={handleOrderComplete}
-              />
+              <CheckoutPage cart={cart} onOrderComplete={handleOrderComplete} />
             }
           />
-          <Route path="/order-confirmation" element={<OrderConfirmationPage />} />
+          <Route
+            path="/order-confirmation"
+            element={<OrderConfirmationPage />}
+          />
           <Route
             path="/admin"
             element={
-              <AdminProducts
-                products={products}
-                onAdd={handleAddProduct}
-                onUpdate={handleUpdateProduct}
-                onDelete={handleDeleteProduct}
-              />
+              authLoading ? (
+                <div className="pt-24 text-center text-[#334155]">
+                  Loading admin access…
+                </div>
+              ) : session ? (
+                <AdminProducts
+                  products={products}
+                  onAdd={handleAddProduct}
+                  onUpdate={handleUpdateProduct}
+                  onDelete={handleDeleteProduct}
+                  onSignOut={signOut}
+                />
+              ) : (
+                <Navigate replace to="/admin/login" />
+              )
+            }
+          />
+          <Route
+            path="/admin/login"
+            element={
+              authLoading ? (
+                <div className="pt-24 text-center text-[#334155]">
+                  Loading admin access…
+                </div>
+              ) : session ? (
+                <Navigate replace to="/admin" />
+              ) : (
+                <AdminLogin />
+              )
             }
           />
           <Route path="*" element={<Navigate replace to="/" />} />

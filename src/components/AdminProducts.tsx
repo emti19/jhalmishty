@@ -1,41 +1,48 @@
-import { useState, type FormEvent } from 'react';
-import { categories } from '../data/products';
-import { Product } from '../types';
-import { supabase } from '../lib/supabase';
+import { useState, type FormEvent } from "react";
+import { categories } from "../data/products";
+import { Product } from "../types";
+import { supabase } from "../lib/supabase";
 
 interface AdminProductsProps {
   products: Product[];
   onAdd: (product: Product) => void;
   onUpdate: (product: Product) => void;
   onDelete: (id: string) => void;
+  onSignOut: () => Promise<void> | void;
 }
 
 const initialFormState = {
-  name: '',
-  description: '',
-  price: '0',
-  unit: 'each',
-  category: 'fruits',
-  image: '',
-  badge: '',
-  rating: '4.5',
-  reviews: '0',
+  name: "",
+  description: "",
+  price: "0",
+  unit: "each",
+  category: "fruits",
+  image: "",
+  badge: "",
+  rating: "4.5",
+  reviews: "0",
   inStock: true,
 };
 
-export function AdminProducts({ products, onAdd, onUpdate, onDelete }: AdminProductsProps) {
+export function AdminProducts({
+  products,
+  onAdd,
+  onUpdate,
+  onDelete,
+  onSignOut,
+}: AdminProductsProps) {
   const [form, setForm] = useState(initialFormState);
   const [editingId, setEditingId] = useState<string | null>(null);
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [uploading, setUploading] = useState(false);
 
-  const categoryOptions = categories.filter((cat) => cat.id !== 'all');
+  const categoryOptions = categories.filter((cat) => cat.id !== "all");
 
   const resetForm = () => {
     setForm(initialFormState);
     setEditingId(null);
-    setError('');
+    setError("");
     setSelectedFile(null);
     setUploading(false);
   };
@@ -54,7 +61,7 @@ export function AdminProducts({ products, onAdd, onUpdate, onDelete }: AdminProd
       // Clear the image URL when a file is selected
       setForm((current) => ({
         ...current,
-        image: '',
+        image: "",
       }));
     }
   };
@@ -62,27 +69,27 @@ export function AdminProducts({ products, onAdd, onUpdate, onDelete }: AdminProd
   const uploadImage = async (file: File): Promise<string | null> => {
     try {
       setUploading(true);
-      const fileExt = file.name.split('.').pop();
+      const fileExt = file.name.split(".").pop();
       const fileName = `${Math.random()}.${fileExt}`;
       const filePath = `products/${fileName}`;
 
       const { error } = await supabase.storage
-        .from('product-images')
+        .from("product-images")
         .upload(filePath, file);
 
       if (error) {
-        console.error('Error uploading image:', error);
+        console.error("Error uploading image:", error);
         return null;
       }
 
       // Get the public URL
-      const { data: { publicUrl } } = supabase.storage
-        .from('product-images')
-        .getPublicUrl(filePath);
+      const {
+        data: { publicUrl },
+      } = supabase.storage.from("product-images").getPublicUrl(filePath);
 
       return publicUrl;
     } catch (error) {
-      console.error('Error uploading image:', error);
+      console.error("Error uploading image:", error);
       return null;
     } finally {
       setUploading(false);
@@ -93,7 +100,7 @@ export function AdminProducts({ products, onAdd, onUpdate, onDelete }: AdminProd
     event.preventDefault();
 
     if (!form.name.trim() || !form.price.trim() || !form.category.trim()) {
-      setError('Please complete the product name, category, and price.');
+      setError("Please complete the product name, category, and price.");
       return;
     }
 
@@ -103,7 +110,7 @@ export function AdminProducts({ products, onAdd, onUpdate, onDelete }: AdminProd
     if (selectedFile) {
       const uploadedUrl = await uploadImage(selectedFile);
       if (!uploadedUrl) {
-        setError('Failed to upload image. Please try again.');
+        setError("Failed to upload image. Please try again.");
         return;
       }
       imageUrl = uploadedUrl;
@@ -114,9 +121,11 @@ export function AdminProducts({ products, onAdd, onUpdate, onDelete }: AdminProd
       name: form.name.trim(),
       description: form.description.trim(),
       price: Number(form.price),
-      unit: form.unit.trim() || 'each',
-      category: form.category as Product['category'],
-      image: imageUrl || 'https://images.pexels.com/photos/102104/pexels-photo-102104.jpeg?auto=compress&cs=tinysrgb&w=600',
+      unit: form.unit.trim() || "each",
+      category: form.category as Product["category"],
+      image:
+        imageUrl ||
+        "https://images.pexels.com/photos/102104/pexels-photo-102104.jpeg?auto=compress&cs=tinysrgb&w=600",
       badge: form.badge.trim() || undefined,
       rating: Number(form.rating),
       reviews: Number(form.reviews),
@@ -141,12 +150,12 @@ export function AdminProducts({ products, onAdd, onUpdate, onDelete }: AdminProd
       unit: product.unit,
       category: product.category,
       image: product.image,
-      badge: product.badge || '',
+      badge: product.badge || "",
       rating: String(product.rating),
       reviews: String(product.reviews),
       inStock: product.inStock,
     });
-    setError('');
+    setError("");
     setSelectedFile(null);
     setUploading(false);
   };
@@ -163,17 +172,30 @@ export function AdminProducts({ products, onAdd, onUpdate, onDelete }: AdminProd
               Product Management
             </h1>
           </div>
-          <p className="text-[#4a6b5f] text-sm max-w-xl">
-            Add, edit, or remove products from the shared product list. Changes update the live product collection used by the homepage.
-          </p>
+          <div className="flex flex-col gap-3 sm:items-end">
+            <p className="text-[#4a6b5f] text-sm max-w-xl">
+              Add, edit, or remove products from the shared product list.
+              Changes update the live product collection used by the homepage.
+            </p>
+            <button
+              onClick={onSignOut}
+              className="inline-flex items-center justify-center rounded-full bg-[#F87171]/10 px-5 py-2 text-sm font-semibold text-[#B91C1C] hover:bg-[#F87171]/20 transition"
+            >
+              Sign out
+            </button>
+          </div>
         </div>
 
         <div className="grid gap-10 lg:grid-cols-[1.2fr_0.8fr]">
           <div className="space-y-6">
             <div className="bg-white rounded-3xl shadow-lg border border-[#E5E7EB] overflow-hidden">
               <div className="px-6 py-5 border-b border-[#E5E7EB]">
-                <h2 className="text-xl font-semibold text-[#1A2E28]">Existing Products</h2>
-                <p className="text-sm text-[#4a6b5f] mt-1">{products.length} products currently available.</p>
+                <h2 className="text-xl font-semibold text-[#1A2E28]">
+                  Existing Products
+                </h2>
+                <p className="text-sm text-[#4a6b5f] mt-1">
+                  {products.length} products currently available.
+                </p>
               </div>
               <div className="overflow-x-auto">
                 <table className="min-w-full text-left text-sm text-[#334155]">
@@ -188,11 +210,22 @@ export function AdminProducts({ products, onAdd, onUpdate, onDelete }: AdminProd
                   </thead>
                   <tbody>
                     {products.map((product) => (
-                      <tr key={product.id} className="border-t border-[#E5E7EB]">
-                        <td className="px-4 py-3 font-medium text-[#0F172A]">{product.name}</td>
-                        <td className="px-4 py-3 text-[#475569]">{product.category}</td>
-                        <td className="px-4 py-3 text-[#475569]">৳{product.price.toFixed(2)}</td>
-                        <td className="px-4 py-3 text-[#475569]">{product.inStock ? 'Yes' : 'No'}</td>
+                      <tr
+                        key={product.id}
+                        className="border-t border-[#E5E7EB]"
+                      >
+                        <td className="px-4 py-3 font-medium text-[#0F172A]">
+                          {product.name}
+                        </td>
+                        <td className="px-4 py-3 text-[#475569]">
+                          {product.category}
+                        </td>
+                        <td className="px-4 py-3 text-[#475569]">
+                          ৳{product.price.toFixed(2)}
+                        </td>
+                        <td className="px-4 py-3 text-[#475569]">
+                          {product.inStock ? "Yes" : "No"}
+                        </td>
                         <td className="px-4 py-3 flex flex-wrap gap-2">
                           <button
                             onClick={() => handleEdit(product)}
@@ -217,11 +250,13 @@ export function AdminProducts({ products, onAdd, onUpdate, onDelete }: AdminProd
 
           <div className="bg-white rounded-3xl shadow-lg border border-[#E5E7EB] p-6">
             <div className="mb-6">
-              <h2 className="text-xl font-semibold text-[#1A2E28]">{editingId ? 'Edit Product' : 'Add New Product'}</h2>
+              <h2 className="text-xl font-semibold text-[#1A2E28]">
+                {editingId ? "Edit Product" : "Add New Product"}
+              </h2>
               <p className="text-sm text-[#4a6b5f] mt-1">
                 {editingId
-                  ? 'Update the selected product details and save your changes.'
-                  : 'Create a new product entry for the storefront.'}
+                  ? "Update the selected product details and save your changes."
+                  : "Create a new product entry for the storefront."}
               </p>
             </div>
 
@@ -234,7 +269,9 @@ export function AdminProducts({ products, onAdd, onUpdate, onDelete }: AdminProd
                   <input
                     type="text"
                     value={form.name}
-                    onChange={(event) => handleChange('name', event.target.value)}
+                    onChange={(event) =>
+                      handleChange("name", event.target.value)
+                    }
                     className="mt-2 w-full rounded-2xl border border-[#D1D5DB] bg-[#F8FAFC] px-4 py-3 text-sm text-[#0F172A] focus:border-[#2F5D50] focus:outline-none"
                   />
                 </label>
@@ -242,7 +279,9 @@ export function AdminProducts({ products, onAdd, onUpdate, onDelete }: AdminProd
                   Category
                   <select
                     value={form.category}
-                    onChange={(event) => handleChange('category', event.target.value)}
+                    onChange={(event) =>
+                      handleChange("category", event.target.value)
+                    }
                     className="mt-2 w-full rounded-2xl border border-[#D1D5DB] bg-[#F8FAFC] px-4 py-3 text-sm text-[#0F172A] focus:border-[#2F5D50] focus:outline-none"
                   >
                     {categoryOptions.map((category) => (
@@ -261,7 +300,9 @@ export function AdminProducts({ products, onAdd, onUpdate, onDelete }: AdminProd
                     type="number"
                     step="0.01"
                     value={form.price}
-                    onChange={(event) => handleChange('price', event.target.value)}
+                    onChange={(event) =>
+                      handleChange("price", event.target.value)
+                    }
                     className="mt-2 w-full rounded-2xl border border-[#D1D5DB] bg-[#F8FAFC] px-4 py-3 text-sm text-[#0F172A] focus:border-[#2F5D50] focus:outline-none"
                   />
                 </label>
@@ -270,7 +311,9 @@ export function AdminProducts({ products, onAdd, onUpdate, onDelete }: AdminProd
                   <input
                     type="text"
                     value={form.unit}
-                    onChange={(event) => handleChange('unit', event.target.value)}
+                    onChange={(event) =>
+                      handleChange("unit", event.target.value)
+                    }
                     className="mt-2 w-full rounded-2xl border border-[#D1D5DB] bg-[#F8FAFC] px-4 py-3 text-sm text-[#0F172A] focus:border-[#2F5D50] focus:outline-none"
                   />
                 </label>
@@ -280,7 +323,9 @@ export function AdminProducts({ products, onAdd, onUpdate, onDelete }: AdminProd
                 Description
                 <textarea
                   value={form.description}
-                  onChange={(event) => handleChange('description', event.target.value)}
+                  onChange={(event) =>
+                    handleChange("description", event.target.value)
+                  }
                   className="mt-2 w-full rounded-2xl border border-[#D1D5DB] bg-[#F8FAFC] px-4 py-3 text-sm text-[#0F172A] focus:border-[#2F5D50] focus:outline-none"
                   rows={4}
                 />
@@ -296,13 +341,19 @@ export function AdminProducts({ products, onAdd, onUpdate, onDelete }: AdminProd
                   disabled={uploading}
                 />
                 {uploading && (
-                  <p className="mt-2 text-sm text-[#F4A261]">Uploading image...</p>
+                  <p className="mt-2 text-sm text-[#F4A261]">
+                    Uploading image...
+                  </p>
                 )}
                 {selectedFile && (
-                  <p className="mt-2 text-sm text-[#2F5D50]">Selected: {selectedFile.name}</p>
+                  <p className="mt-2 text-sm text-[#2F5D50]">
+                    Selected: {selectedFile.name}
+                  </p>
                 )}
                 {!selectedFile && form.image && (
-                  <p className="mt-2 text-sm text-[#4a6b5f]">Current image: {form.image}</p>
+                  <p className="mt-2 text-sm text-[#4a6b5f]">
+                    Current image: {form.image}
+                  </p>
                 )}
               </label>
 
@@ -312,7 +363,9 @@ export function AdminProducts({ products, onAdd, onUpdate, onDelete }: AdminProd
                   <input
                     type="text"
                     value={form.badge}
-                    onChange={(event) => handleChange('badge', event.target.value)}
+                    onChange={(event) =>
+                      handleChange("badge", event.target.value)
+                    }
                     className="mt-2 w-full rounded-2xl border border-[#D1D5DB] bg-[#F8FAFC] px-4 py-3 text-sm text-[#0F172A] focus:border-[#2F5D50] focus:outline-none"
                   />
                 </label>
@@ -324,7 +377,9 @@ export function AdminProducts({ products, onAdd, onUpdate, onDelete }: AdminProd
                     min="0"
                     max="5"
                     value={form.rating}
-                    onChange={(event) => handleChange('rating', event.target.value)}
+                    onChange={(event) =>
+                      handleChange("rating", event.target.value)
+                    }
                     className="mt-2 w-full rounded-2xl border border-[#D1D5DB] bg-[#F8FAFC] px-4 py-3 text-sm text-[#0F172A] focus:border-[#2F5D50] focus:outline-none"
                   />
                 </label>
@@ -338,7 +393,9 @@ export function AdminProducts({ products, onAdd, onUpdate, onDelete }: AdminProd
                     step="1"
                     min="0"
                     value={form.reviews}
-                    onChange={(event) => handleChange('reviews', event.target.value)}
+                    onChange={(event) =>
+                      handleChange("reviews", event.target.value)
+                    }
                     className="mt-2 w-full rounded-2xl border border-[#D1D5DB] bg-[#F8FAFC] px-4 py-3 text-sm text-[#0F172A] focus:border-[#2F5D50] focus:outline-none"
                   />
                 </label>
@@ -346,7 +403,9 @@ export function AdminProducts({ products, onAdd, onUpdate, onDelete }: AdminProd
                   <input
                     type="checkbox"
                     checked={form.inStock}
-                    onChange={(event) => handleChange('inStock', event.target.checked)}
+                    onChange={(event) =>
+                      handleChange("inStock", event.target.checked)
+                    }
                     className="h-4 w-4 rounded border-[#D1D5DB] text-[#2F5D50] focus:ring-[#2F5D50]"
                   />
                   In Stock
@@ -358,7 +417,7 @@ export function AdminProducts({ products, onAdd, onUpdate, onDelete }: AdminProd
                   type="submit"
                   className="inline-flex items-center justify-center rounded-full bg-[#2F5D50] px-5 py-3 text-sm font-semibold text-white transition hover:bg-[#264d43]"
                 >
-                  {editingId ? 'Update Product' : 'Add Product'}
+                  {editingId ? "Update Product" : "Add Product"}
                 </button>
                 {editingId && (
                   <button
