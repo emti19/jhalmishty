@@ -1,8 +1,8 @@
-import { ShoppingCart, Search, Menu, X } from 'lucide-react';
-import { useState } from 'react';
-import { Link } from 'react-router-dom';
-import { Cart } from '../types';
-import logo from '../../assets/jhalmistylogo.png';
+import { ShoppingCart, Search, Menu, X } from "lucide-react";
+import { useState } from "react";
+import { Link } from "react-router-dom";
+import { Cart } from "../types";
+import logo from "../../assets/jhalmistylogo.png";
 
 interface HeaderProps {
   cart: Cart;
@@ -17,7 +17,9 @@ export function Header({ cart, onCartOpen }: HeaderProps) {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           <div className="flex items-center gap-2">
-            <a href="/"><img src={logo} alt="Farm Logo" className="h-24 w-auto" /></a>
+            <a href="/">
+              <img src={logo} alt="Farm Logo" className="h-24 w-auto" />
+            </a>
           </div>
 
           <nav className="hidden md:flex items-center gap-8">
@@ -27,7 +29,7 @@ export function Header({ cart, onCartOpen }: HeaderProps) {
             >
               Shop
             </Link>
-            {['Our Farm', 'Recipes', 'About'].map((item) => (
+            {["Our Farm", "Recipes", "About"].map((item) => (
               <a
                 key={item}
                 href="#"
@@ -76,7 +78,7 @@ export function Header({ cart, onCartOpen }: HeaderProps) {
           >
             Shop
           </Link>
-          {['Our Farm', 'Recipes', 'About'].map((item) => (
+          {["Our Farm", "Recipes", "About"].map((item) => (
             <a
               key={item}
               href="#"
