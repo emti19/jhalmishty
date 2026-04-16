@@ -100,12 +100,12 @@ function App() {
   const homePage = (
     <main>
       <Hero />
-      <Benefits />
       <ProductsPage
         products={products}
         onAddToCart={handleAddToCart}
         loading={loadingProducts}
       />
+      <Benefits />
       <FarmStory />
       <Testimonials />
       {/* <Newsletter /> */}
