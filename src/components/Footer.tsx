@@ -22,7 +22,7 @@ const links = {
 export function Footer() {
   return (
     <footer className="bg-[#1A2E28] text-white">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-14">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8  ">
         <div className="grid sm:grid-cols-2 lg:grid-cols-5 gap-10 mb-12">
           <div className="sm:col-span-2">
             <div className="flex items-center gap-2 mb-4">

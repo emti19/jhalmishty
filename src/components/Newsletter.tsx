@@ -14,7 +14,7 @@ export function Newsletter() {
   };
 
   return (
-    <section className="py-16 lg:py-20 bg-[#2F5D50] relative overflow-hidden">
+    <section className="  lg:py-20 bg-[#2F5D50] relative overflow-hidden">
       <div className="absolute inset-0 pointer-events-none">
         <div className="absolute -top-24 -right-24 w-72 h-72 bg-[#A8C686]/10 rounded-full blur-3xl" />
         <div className="absolute -bottom-16 -left-16 w-64 h-64 bg-[#F4A261]/10 rounded-full blur-3xl" />
