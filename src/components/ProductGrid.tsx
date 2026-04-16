@@ -17,7 +17,7 @@ export function ProductGrid({ products, onAddToCart, loading = false }: ProductG
     : products.filter((p) => p.category === activeCategory);
 
   return (
-    <section id="products" className="py-16 lg:py-24 bg-[#FAF7F2]">
+    <section id="products" className="lg:py-24 bg-[#FAF7F2]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-6 mb-10">
           <div>
