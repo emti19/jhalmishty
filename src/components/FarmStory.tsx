@@ -1,7 +1,7 @@
 export function FarmStory() {
   return (
     <section id="ourstory" className="    bg-[#FAF7F2] scroll-mt-16" >
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
         <div className="grid lg:grid-cols-2 gap-12 lg:gap-20 items-center">
           <div className="relative">
             <div className="grid grid-cols-2 gap-4">

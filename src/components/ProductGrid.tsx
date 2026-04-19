@@ -18,7 +18,7 @@ export function ProductGrid({ products, onAddToCart, loading = false }: ProductG
 
   return (
     <section id="products" className="bg-[#FAF7F2]">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="py-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-6 mb-10">
           <div>
             <p className="text-[#F4A261] font-medium text-sm mb-2 tracking-wide uppercase">

@@ -1,10 +1,10 @@
-import { ArrowRight, Award, Home, Leaf } from 'lucide-react';
-import { Link } from 'react-router-dom';
-import balachao from '../../assets/balachao.png'
+import { ArrowRight, Award, Home, Leaf } from "lucide-react";
+import { Link } from "react-router-dom";
+import balachao from "../../assets/balachao.png";
 
 export function Hero() {
   return (
-    <section className="relative pt-24 pb-16 lg:pt-32 lg:pb-24 overflow-hidden bg-[#FAF7F2]">
+    <section className="relative pt-24 pb-5 overflow-hidden bg-[#FAF7F2]">
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute -top-32 -right-32 w-96 h-96 bg-[#A8C686]/15 rounded-full blur-3xl" />
         <div className="absolute bottom-0 -left-24 w-72 h-72 bg-[#F4A261]/10 rounded-full blur-3xl" />
@@ -18,13 +18,14 @@ export function Hero() {
               100% Certified Organic
             </div>
             <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-[#1A2E28] leading-[1.1] mb-6">
-              খামার থেকে
+              ক্ষেত থেকে
               <span className="text-[#2F5D50]"> সরাসরি </span>
-              আপনার টেবিলে
+              আপনার রান্নাঘরে
             </h1>
             <p className="text-lg text-[#4a6b5f] leading-relaxed mb-8 max-w-lg">
-              আমরা ছোট, টেকসই খামার থেকে সরাসরি সেরা মানের অর্গানিক পণ্য সংগ্রহ করি।
-              প্রতিটি উপাদান সতেজতা, স্বাদ এবং আপনার সুস্থতার কথা মাথায় রেখে যত্নসহকারে নির্বাচন করা হয়।
+              আমরা ছোট, ব্যক্তিগত খামার থেকে সরাসরি সেরা মানের অর্গানিক পণ্য
+              সংগ্রহ করি। প্রতিটি উপাদান সতেজতা, স্বাদ এবং আপনার সুস্থতার কথা
+              মাথায় রেখে যত্নসহকারে নির্বাচন করা হয়।
             </p>
             <div className="flex flex-wrap gap-4 mb-12">
               <Link
@@ -44,16 +45,18 @@ export function Hero() {
 
             <div className="flex flex-wrap gap-6 sm:gap-10">
               {[
-                { icon: Award, label: '5+ Products', sub: 'Certified Organic' },
-                { icon: Home, label: 'Home Made', sub: 'Tasty & Fresh' },
-                { icon: Leaf, label: 'Farm Direct', sub: '30+ Local Farms' },
+                { icon: Award, label: "5+ Products", sub: "Certified Organic" },
+                { icon: Home, label: "Home Made", sub: "Tasty & Fresh" },
+                { icon: Leaf, label: "Farm Direct", sub: "30+ Local Farms" },
               ].map(({ icon: Icon, label, sub }) => (
                 <div key={label} className="flex items-center gap-3">
                   <div className="w-10 h-10 bg-[#A8C686]/25 rounded-xl flex items-center justify-center flex-shrink-0">
                     <Icon className="w-5 h-5 text-[#2F5D50]" />
                   </div>
                   <div>
-                    <p className="text-sm font-semibold text-[#1A2E28]">{label}</p>
+                    <p className="text-sm font-semibold text-[#1A2E28]">
+                      {label}
+                    </p>
                     <p className="text-xs text-[#4a6b5f]">{sub}</p>
                   </div>
                 </div>
@@ -77,8 +80,12 @@ export function Hero() {
                   <span className="text-lg">🌿</span>
                 </div>
                 <div>
-                  <p className="text-xs text-[#4a6b5f]">আমাদের বেস্ট সেলিং প্রোডাক্ট</p>
-                  <p className="text-sm font-bold text-[#1A2E28]">চিংড়ি বালাচাও</p>
+                  <p className="text-xs text-[#4a6b5f]">
+                    আমাদের বেস্ট সেলিং প্রোডাক্ট
+                  </p>
+                  <p className="text-sm font-bold text-[#1A2E28]">
+                    চিংড়ি বালাচাও
+                  </p>
                 </div>
               </div>
             </div>
@@ -88,7 +95,9 @@ export function Hero() {
               <p className="text-xs text-[#A8C686]">Rating</p>
               <div className="flex gap-0.5 mt-1">
                 {[...Array(5)].map((_, i) => (
-                  <span key={i} className="text-[#F4A261] text-xs">★</span>
+                  <span key={i} className="text-[#F4A261] text-xs">
+                    ★
+                  </span>
                 ))}
               </div>
             </div>

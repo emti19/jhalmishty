@@ -2,6 +2,7 @@ export interface Product {
   id: string;
   name: string;
   description: string;
+  details?: string;
   price: number;
   unit: string;
   category: Category;
@@ -12,7 +13,13 @@ export interface Product {
   inStock: boolean;
 }
 
-export type Category = 'fruits' | 'vegetables' | 'dairy' | 'grains' | 'herbs' | 'pantry';
+export type Category =
+  | "fruits"
+  | "vegetables"
+  | "dairy"
+  | "grains"
+  | "herbs"
+  | "pantry";
 
 export interface CartItem {
   product: Product;
@@ -41,11 +48,11 @@ export interface Order {
   id: string;
   items: CartItem[];
   shippingAddress: ShippingAddress;
-  paymentMethod: 'card' | 'paypal' | 'bank';
+  paymentMethod: "card" | "paypal" | "bank";
   subtotal: number;
   shipping: number;
   tax: number;
   total: number;
-  status: 'pending' | 'confirmed' | 'shipped' | 'delivered';
+  status: "pending" | "confirmed" | "shipped" | "delivered";
   createdAt: Date;
 }

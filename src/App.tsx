@@ -8,6 +8,7 @@ import { Testimonials } from "./components/Testimonials";
 import { Footer } from "./components/Footer";
 import { CartSidebar } from "./components/CartSidebar";
 import { ProductsPage } from "./components/ProductsPage";
+import { ProductDetail } from "./components/ProductDetail";
 import { CheckoutPage } from "./components/CheckoutPage";
 import { OrderConfirmationPage } from "./components/OrderConfirmationPage";
 import { AdminProducts } from "./components/AdminProducts";
@@ -126,6 +127,15 @@ function App() {
                 products={products}
                 onAddToCart={handleAddToCart}
                 loading={loadingProducts}
+              />
+            }
+          />
+          <Route
+            path="/product/:id"
+            element={
+              <ProductDetail
+                products={products}
+                onAddToCart={handleAddToCart}
               />
             }
           />

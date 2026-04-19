@@ -14,6 +14,7 @@ interface AdminProductsProps {
 const initialFormState = {
   name: "",
   description: "",
+  details: "",
   price: "0",
   unit: "each",
   category: "fruits",
@@ -120,6 +121,7 @@ export function AdminProducts({
       id: editingId ?? Math.floor(Math.random() * 1000000).toString(), // Generate numeric ID as string
       name: form.name.trim(),
       description: form.description.trim(),
+      details: form.details.trim() || form.description.trim(),
       price: Number(form.price),
       unit: form.unit.trim() || "each",
       category: form.category as Product["category"],
@@ -146,6 +148,7 @@ export function AdminProducts({
     setForm({
       name: product.name,
       description: product.description,
+      details: product.details || "",
       price: String(product.price),
       unit: product.unit,
       category: product.category,

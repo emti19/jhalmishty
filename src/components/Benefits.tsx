@@ -30,10 +30,10 @@ const benefits = [
 export function Benefits() {
   return (
     <section className="    bg-white">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="max-w-7xl py-10 mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-12">
           <p className="text-[#F4A261] font-medium text-sm mb-2 tracking-wide uppercase">
-            কেন আমাদের থেকে কিনবেন?
+            কেন আমাদের কাছ থেকে কিনবেন?
           </p>
           <h2 className="text-3xl sm:text-4xl font-bold text-[#1A2E28]">
             The ঝাল মিষ্টি Difference
