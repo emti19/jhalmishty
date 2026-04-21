@@ -15,7 +15,17 @@ export function ProductDetail({ products, onAddToCart }: ProductDetailProps) {
   const [quantity, setQuantity] = useState(1);
   const [isZoomed, setIsZoomed] = useState(false);
   const [zoomPos, setZoomPos] = useState({ x: 50, y: 50 });
+  const [mainImageIndex, setMainImageIndex] = useState(0);
   const detailsText = product?.details || product?.description || "";
+
+  // Get all available images
+  const images = product
+    ? [product.image, product.image2, product.image3].filter(
+        (img) => img !== undefined && img !== ""
+      )
+    : [];
+
+  const mainImage = images[mainImageIndex] || product?.image;
 
   if (!product) {
     return (
@@ -56,15 +66,10 @@ export function ProductDetail({ products, onAddToCart }: ProductDetailProps) {
   };
 
   const handleMouseMove = (event: React.MouseEvent<HTMLDivElement>) => {
-    if (!isZoomed) return;
     const rect = event.currentTarget.getBoundingClientRect();
     const x = ((event.clientX - rect.left) / rect.width) * 100;
     const y = ((event.clientY - rect.top) / rect.height) * 100;
     setZoomPos({ x, y });
-  };
-
-  const toggleZoom = () => {
-    setIsZoomed((current) => !current);
   };
 
   return (
@@ -81,34 +86,57 @@ export function ProductDetail({ products, onAddToCart }: ProductDetailProps) {
         <div className="grid grid-cols-1 lg:grid-cols-[1.05fr_0.95fr] gap-10 items-start">
           <div className="space-y-6">
             <div
-              className="relative aspect-square overflow-hidden rounded-[2rem] border border-[#A8C686]/15 bg-white shadow-sm cursor-pointer"
-              onClick={toggleZoom}
+              className="relative aspect-square overflow-hidden rounded-[2rem] border border-[#A8C686]/15 bg-white shadow-sm"
+              onMouseEnter={() => setIsZoomed(true)}
+              onMouseLeave={() => setIsZoomed(false)}
               onMouseMove={handleMouseMove}
             >
               <img
-                src={product.image}
+                src={mainImage}
                 alt={product.name}
-                className={`w-full h-full object-cover transition-transform duration-200 ${
-                  isZoomed ? "scale-175" : "scale-100"
-                }`}
+                className="w-full h-full object-cover"
                 style={
                   isZoomed
-                    ? { transformOrigin: `${zoomPos.x}% ${zoomPos.y}%` }
-                    : undefined
+                    ? {
+                        transform: "scale(2)",
+                        transformOrigin: `${zoomPos.x}% ${zoomPos.y}%`,
+                        transition: "transform 0.1s ease-out",
+                      }
+                    : {
+                        transform: "scale(1)",
+                        transition: "transform 0.2s ease-out",
+                      }
                 }
               />
-              {!isZoomed ? (
+              {isZoomed && (
                 <div className="absolute bottom-4 right-4 inline-flex items-center gap-2 rounded-full bg-black/70 px-3 py-2 text-sm text-white">
                   <ZoomIn className="w-4 h-4" />
-                  Click to zoom
-                </div>
-              ) : (
-                <div className="absolute top-4 right-4 inline-flex items-center gap-2 rounded-full bg-black/70 px-3 py-2 text-sm text-white">
-                  <X className="w-4 h-4" />
-                  Click to close
+                  Zoom view
                 </div>
               )}
             </div>
+
+            {images.length > 1 && (
+              <div className="flex gap-3">
+                {images.map((image, index) => (
+                  <button
+                    key={index}
+                    onClick={() => setMainImageIndex(index)}
+                    className={`relative w-20 h-20 rounded-2xl overflow-hidden border-2 transition-all ${
+                      mainImageIndex === index
+                        ? "border-[#2F5D50] ring-2 ring-[#2F5D50]/30"
+                        : "border-[#A8C686]/15 hover:border-[#A8C686]/40"
+                    }`}
+                  >
+                    <img
+                      src={image}
+                      alt={`${product.name} view ${index + 1}`}
+                      className="w-full h-full object-cover"
+                    />
+                  </button>
+                ))}
+              </div>
+            )}
 
             <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
               <div className="rounded-3xl border border-[#A8C686]/15 bg-white p-5 text-sm">

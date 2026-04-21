@@ -7,6 +7,8 @@ export interface Product {
   unit: string;
   category: Category;
   image: string;
+  image2?: string;
+  image3?: string;
   badge?: string;
   rating: number;
   reviews: number;

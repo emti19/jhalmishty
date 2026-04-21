@@ -19,6 +19,8 @@ const initialFormState = {
   unit: "each",
   category: "fruits",
   image: "",
+  image2: "",
+  image3: "",
   badge: "",
   rating: "4.5",
   reviews: "0",
@@ -35,7 +37,11 @@ export function AdminProducts({
   const [form, setForm] = useState(initialFormState);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [error, setError] = useState("");
-  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [selectedFiles, setSelectedFiles] = useState<{
+    file1: File | null;
+    file2: File | null;
+    file3: File | null;
+  }>({ file1: null, file2: null, file3: null });
   const [uploading, setUploading] = useState(false);
 
   const categoryOptions = categories.filter((cat) => cat.id !== "all");
@@ -44,7 +50,7 @@ export function AdminProducts({
     setForm(initialFormState);
     setEditingId(null);
     setError("");
-    setSelectedFile(null);
+    setSelectedFiles({ file1: null, file2: null, file3: null });
     setUploading(false);
   };
 
@@ -55,14 +61,21 @@ export function AdminProducts({
     }));
   };
 
-  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = (
+    event: React.ChangeEvent<HTMLInputElement>,
+    imageNumber: 1 | 2 | 3
+  ) => {
     const file = event.target.files?.[0];
     if (file) {
-      setSelectedFile(file);
-      // Clear the image URL when a file is selected
+      const fileKey = `file${imageNumber}` as keyof typeof selectedFiles;
+      setSelectedFiles((current) => ({
+        ...current,
+        [fileKey]: file,
+      }));
+      // Clear the corresponding image URL when a file is selected
       setForm((current) => ({
         ...current,
-        image: "",
+        [`image${imageNumber === 1 ? "" : imageNumber}`]: "",
       }));
     }
   };
@@ -106,15 +119,37 @@ export function AdminProducts({
     }
 
     let imageUrl = form.image;
+    let imageUrl2 = form.image2;
+    let imageUrl3 = form.image3;
 
-    // Upload file if selected
-    if (selectedFile) {
-      const uploadedUrl = await uploadImage(selectedFile);
+    // Upload file 1 if selected
+    if (selectedFiles.file1) {
+      const uploadedUrl = await uploadImage(selectedFiles.file1);
       if (!uploadedUrl) {
-        setError("Failed to upload image. Please try again.");
+        setError("Failed to upload image 1. Please try again.");
         return;
       }
       imageUrl = uploadedUrl;
+    }
+
+    // Upload file 2 if selected
+    if (selectedFiles.file2) {
+      const uploadedUrl = await uploadImage(selectedFiles.file2);
+      if (!uploadedUrl) {
+        setError("Failed to upload image 2. Please try again.");
+        return;
+      }
+      imageUrl2 = uploadedUrl;
+    }
+
+    // Upload file 3 if selected
+    if (selectedFiles.file3) {
+      const uploadedUrl = await uploadImage(selectedFiles.file3);
+      if (!uploadedUrl) {
+        setError("Failed to upload image 3. Please try again.");
+        return;
+      }
+      imageUrl3 = uploadedUrl;
     }
 
     const product: Product = {
@@ -128,6 +163,8 @@ export function AdminProducts({
       image:
         imageUrl ||
         "https://images.pexels.com/photos/102104/pexels-photo-102104.jpeg?auto=compress&cs=tinysrgb&w=600",
+      image2: imageUrl2 || undefined,
+      image3: imageUrl3 || undefined,
       badge: form.badge.trim() || undefined,
       rating: Number(form.rating),
       reviews: Number(form.reviews),
@@ -153,13 +190,15 @@ export function AdminProducts({
       unit: product.unit,
       category: product.category,
       image: product.image,
+      image2: product.image2 || "",
+      image3: product.image3 || "",
       badge: product.badge || "",
       rating: String(product.rating),
       reviews: String(product.reviews),
       inStock: product.inStock,
     });
     setError("");
-    setSelectedFile(null);
+    setSelectedFiles({ file1: null, file2: null, file3: null });
     setUploading(false);
   };
 
@@ -335,27 +374,69 @@ export function AdminProducts({
               </label>
 
               <label className="block text-sm font-medium text-[#334155]">
-                Product Image
+                Product Images (Image 1)
                 <input
                   type="file"
                   accept="image/*"
-                  onChange={handleFileChange}
+                  onChange={(event) => handleFileChange(event, 1)}
+                  className="mt-2 w-full rounded-2xl border border-[#D1D5DB] bg-[#F8FAFC] px-4 py-3 text-sm text-[#0F172A] focus:border-[#2F5D50] focus:outline-none file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-[#2F5D50] file:text-white hover:file:bg-[#264d43]"
+                  disabled={uploading}
+                />
+                {selectedFiles.file1 && (
+                  <p className="mt-2 text-sm text-[#2F5D50]">
+                    Selected: {selectedFiles.file1.name}
+                  </p>
+                )}
+                {!selectedFiles.file1 && form.image && (
+                  <p className="mt-2 text-sm text-[#4a6b5f]">
+                    Current image: {form.image}
+                  </p>
+                )}
+              </label>
+
+              <label className="block text-sm font-medium text-[#334155]">
+                Product Image 2 (Optional)
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={(event) => handleFileChange(event, 2)}
+                  className="mt-2 w-full rounded-2xl border border-[#D1D5DB] bg-[#F8FAFC] px-4 py-3 text-sm text-[#0F172A] focus:border-[#2F5D50] focus:outline-none file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-[#2F5D50] file:text-white hover:file:bg-[#264d43]"
+                  disabled={uploading}
+                />
+                {selectedFiles.file2 && (
+                  <p className="mt-2 text-sm text-[#2F5D50]">
+                    Selected: {selectedFiles.file2.name}
+                  </p>
+                )}
+                {!selectedFiles.file2 && form.image2 && (
+                  <p className="mt-2 text-sm text-[#4a6b5f]">
+                    Current image: {form.image2}
+                  </p>
+                )}
+              </label>
+
+              <label className="block text-sm font-medium text-[#334155]">
+                Product Image 3 (Optional)
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={(event) => handleFileChange(event, 3)}
                   className="mt-2 w-full rounded-2xl border border-[#D1D5DB] bg-[#F8FAFC] px-4 py-3 text-sm text-[#0F172A] focus:border-[#2F5D50] focus:outline-none file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-[#2F5D50] file:text-white hover:file:bg-[#264d43]"
                   disabled={uploading}
                 />
                 {uploading && (
                   <p className="mt-2 text-sm text-[#F4A261]">
-                    Uploading image...
+                    Uploading images...
                   </p>
                 )}
-                {selectedFile && (
+                {selectedFiles.file3 && (
                   <p className="mt-2 text-sm text-[#2F5D50]">
-                    Selected: {selectedFile.name}
+                    Selected: {selectedFiles.file3.name}
                   </p>
                 )}
-                {!selectedFile && form.image && (
+                {!selectedFiles.file3 && form.image3 && (
                   <p className="mt-2 text-sm text-[#4a6b5f]">
-                    Current image: {form.image}
+                    Current image: {form.image3}
                   </p>
                 )}
               </label>
