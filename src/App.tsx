@@ -21,6 +21,7 @@ import {
   updateProduct as updateProductDb,
   deleteProduct as deleteProductDb,
 } from "./services/productService";
+import { createOrder } from "./services/orderService";
 import { Product, Order } from "./types";
 import { products as initialProducts } from "./data/products";
 
@@ -91,11 +92,11 @@ function App() {
     }
   };
 
-  const handleOrderComplete = (order: Order) => {
-    // Clear the cart after successful order
-    // Note: In a real app, you'd want to persist orders to a backend
-    console.log("Order completed:", order);
+  const handleOrderComplete = async (order: Order) => {
+    const createdOrder = await createOrder(order);
     clearCart();
+    console.log("Order completed:", createdOrder);
+    return createdOrder;
   };
 
   const homePage = (

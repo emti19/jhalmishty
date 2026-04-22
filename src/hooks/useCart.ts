@@ -1,5 +1,6 @@
 import { useState, useCallback } from 'react';
 import { Cart, CartItem, Product } from '../types';
+import { getDiscountedPrice } from '../utils/pricing';
 
 const initialCart: Cart = {
   items: [],
@@ -8,7 +9,10 @@ const initialCart: Cart = {
 };
 
 function computeCart(items: CartItem[]): Cart {
-  const total = items.reduce((sum, item) => sum + item.product.price * item.quantity, 0);
+  const total = items.reduce(
+    (sum, item) => sum + getDiscountedPrice(item.product) * item.quantity,
+    0,
+  );
   const count = items.reduce((sum, item) => sum + item.quantity, 0);
   return { items, total, count };
 }

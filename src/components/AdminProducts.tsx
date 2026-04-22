@@ -1,21 +1,26 @@
-import { useState, type FormEvent } from "react";
+import { useState, type ChangeEvent, type FormEvent } from "react";
 import { categories } from "../data/products";
-import { Product } from "../types";
+import type { Product } from "../types";
 import { supabase } from "../lib/supabase";
+import { AdminOrders } from "./AdminOrders";
+import { getDiscountedPrice, hasDiscount } from "../utils/pricing";
 
 interface AdminProductsProps {
   products: Product[];
-  onAdd: (product: Product) => void;
-  onUpdate: (product: Product) => void;
-  onDelete: (id: string) => void;
+  onAdd: (product: Product) => Promise<void> | void;
+  onUpdate: (product: Product) => Promise<void> | void;
+  onDelete: (id: string) => Promise<void> | void;
   onSignOut: () => Promise<void> | void;
 }
+
+type AdminTab = "products" | "orders";
 
 const initialFormState = {
   name: "",
   description: "",
   details: "",
   price: "0",
+  discountPercent: "0",
   unit: "each",
   category: "fruits",
   image: "",
@@ -34,6 +39,7 @@ export function AdminProducts({
   onDelete,
   onSignOut,
 }: AdminProductsProps) {
+  const [activeTab, setActiveTab] = useState<AdminTab>("products");
   const [form, setForm] = useState(initialFormState);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [error, setError] = useState("");
@@ -44,7 +50,7 @@ export function AdminProducts({
   }>({ file1: null, file2: null, file3: null });
   const [uploading, setUploading] = useState(false);
 
-  const categoryOptions = categories.filter((cat) => cat.id !== "all");
+  const categoryOptions = categories.filter((category) => category.id !== "all");
 
   const resetForm = () => {
     setForm(initialFormState);
@@ -62,22 +68,26 @@ export function AdminProducts({
   };
 
   const handleFileChange = (
-    event: React.ChangeEvent<HTMLInputElement>,
-    imageNumber: 1 | 2 | 3
+    event: ChangeEvent<HTMLInputElement>,
+    imageNumber: 1 | 2 | 3,
   ) => {
     const file = event.target.files?.[0];
-    if (file) {
-      const fileKey = `file${imageNumber}` as keyof typeof selectedFiles;
-      setSelectedFiles((current) => ({
-        ...current,
-        [fileKey]: file,
-      }));
-      // Clear the corresponding image URL when a file is selected
-      setForm((current) => ({
-        ...current,
-        [`image${imageNumber === 1 ? "" : imageNumber}`]: "",
-      }));
+
+    if (!file) {
+      return;
     }
+
+    const fileKey = `file${imageNumber}` as keyof typeof selectedFiles;
+    const imageKey = `image${imageNumber === 1 ? "" : imageNumber}` as const;
+
+    setSelectedFiles((current) => ({
+      ...current,
+      [fileKey]: file,
+    }));
+    setForm((current) => ({
+      ...current,
+      [imageKey]: "",
+    }));
   };
 
   const uploadImage = async (file: File): Promise<string | null> => {
@@ -87,23 +97,22 @@ export function AdminProducts({
       const fileName = `${Math.random()}.${fileExt}`;
       const filePath = `products/${fileName}`;
 
-      const { error } = await supabase.storage
+      const { error: uploadError } = await supabase.storage
         .from("product-images")
         .upload(filePath, file);
 
-      if (error) {
-        console.error("Error uploading image:", error);
+      if (uploadError) {
+        console.error("Error uploading image:", uploadError);
         return null;
       }
 
-      // Get the public URL
       const {
         data: { publicUrl },
       } = supabase.storage.from("product-images").getPublicUrl(filePath);
 
       return publicUrl;
-    } catch (error) {
-      console.error("Error uploading image:", error);
+    } catch (uploadError) {
+      console.error("Error uploading image:", uploadError);
       return null;
     } finally {
       setUploading(false);
@@ -118,11 +127,15 @@ export function AdminProducts({
       return;
     }
 
+    const discountPercent = Math.min(
+      100,
+      Math.max(0, Number(form.discountPercent) || 0),
+    );
+
     let imageUrl = form.image;
     let imageUrl2 = form.image2;
     let imageUrl3 = form.image3;
 
-    // Upload file 1 if selected
     if (selectedFiles.file1) {
       const uploadedUrl = await uploadImage(selectedFiles.file1);
       if (!uploadedUrl) {
@@ -132,7 +145,6 @@ export function AdminProducts({
       imageUrl = uploadedUrl;
     }
 
-    // Upload file 2 if selected
     if (selectedFiles.file2) {
       const uploadedUrl = await uploadImage(selectedFiles.file2);
       if (!uploadedUrl) {
@@ -142,7 +154,6 @@ export function AdminProducts({
       imageUrl2 = uploadedUrl;
     }
 
-    // Upload file 3 if selected
     if (selectedFiles.file3) {
       const uploadedUrl = await uploadImage(selectedFiles.file3);
       if (!uploadedUrl) {
@@ -153,11 +164,12 @@ export function AdminProducts({
     }
 
     const product: Product = {
-      id: editingId ?? Math.floor(Math.random() * 1000000).toString(), // Generate numeric ID as string
+      id: editingId ?? Math.floor(Math.random() * 1000000).toString(),
       name: form.name.trim(),
       description: form.description.trim(),
       details: form.details.trim() || form.description.trim(),
       price: Number(form.price),
+      discountPercent,
       unit: form.unit.trim() || "each",
       category: form.category as Product["category"],
       image:
@@ -172,21 +184,23 @@ export function AdminProducts({
     };
 
     if (editingId) {
-      onUpdate(product);
+      await onUpdate(product);
     } else {
-      onAdd(product);
+      await onAdd(product);
     }
 
     resetForm();
   };
 
   const handleEdit = (product: Product) => {
+    setActiveTab("products");
     setEditingId(product.id);
     setForm({
       name: product.name,
       description: product.description,
       details: product.details || "",
       price: String(product.price),
+      discountPercent: String(product.discountPercent ?? 0),
       unit: product.unit,
       category: product.category,
       image: product.image,
@@ -202,320 +216,389 @@ export function AdminProducts({
     setUploading(false);
   };
 
+  const title =
+    activeTab === "products" ? "Store Management" : "Order Management";
+  const description =
+    activeTab === "products"
+      ? "Add, edit, and remove storefront products while keeping product images and stock details current."
+      : "Track incoming orders, review customer details, and update delivery status without leaving the admin area.";
+
   return (
-    <section className="pt-24 pb-16 lg:pt-32 lg:pb-24 min-h-screen bg-[#FAF7F2]">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-6 mb-10">
+    <section className="min-h-screen bg-[#FAF7F2] pb-16 pt-24 lg:pb-24 lg:pt-32">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div className="mb-10 flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between">
           <div>
-            <p className="text-[#F4A261] font-medium text-sm mb-2 tracking-wide uppercase">
+            <p className="mb-2 text-sm font-medium uppercase tracking-wide text-[#F4A261]">
               Admin Dashboard
             </p>
-            <h1 className="text-3xl sm:text-4xl font-bold text-[#1A2E28]">
-              Product Management
+            <h1 className="text-3xl font-bold text-[#1A2E28] sm:text-4xl">
+              {title}
             </h1>
           </div>
+
           <div className="flex flex-col gap-3 sm:items-end">
-            <p className="text-[#4a6b5f] text-sm max-w-xl">
-              Add, edit, or remove products from the shared product list.
-              Changes update the live product collection used by the homepage.
-            </p>
+            <p className="max-w-xl text-sm text-[#4a6b5f]">{description}</p>
             <button
+              type="button"
               onClick={onSignOut}
-              className="inline-flex items-center justify-center rounded-full bg-[#F87171]/10 px-5 py-2 text-sm font-semibold text-[#B91C1C] hover:bg-[#F87171]/20 transition"
+              className="inline-flex items-center justify-center rounded-full bg-[#F87171]/10 px-5 py-2 text-sm font-semibold text-[#B91C1C] transition hover:bg-[#F87171]/20"
             >
               Sign out
             </button>
           </div>
         </div>
 
-        <div className="grid gap-10 lg:grid-cols-[1.2fr_0.8fr]">
-          <div className="space-y-6">
-            <div className="bg-white rounded-3xl shadow-lg border border-[#E5E7EB] overflow-hidden">
-              <div className="px-6 py-5 border-b border-[#E5E7EB]">
+        <div className="mb-8 flex flex-wrap gap-3">
+          <button
+            type="button"
+            onClick={() => setActiveTab("products")}
+            className={`rounded-full px-5 py-3 text-sm font-semibold transition ${
+              activeTab === "products"
+                ? "bg-[#2F5D50] text-white shadow-sm"
+                : "border border-[#D1D5DB] bg-white text-[#475569] hover:bg-[#F8FAFC]"
+            }`}
+          >
+            Products
+          </button>
+          <button
+            type="button"
+            onClick={() => setActiveTab("orders")}
+            className={`rounded-full px-5 py-3 text-sm font-semibold transition ${
+              activeTab === "orders"
+                ? "bg-[#2F5D50] text-white shadow-sm"
+                : "border border-[#D1D5DB] bg-white text-[#475569] hover:bg-[#F8FAFC]"
+            }`}
+          >
+            Orders
+          </button>
+        </div>
+
+        {activeTab === "orders" ? (
+          <AdminOrders />
+        ) : (
+          <div className="grid gap-10 lg:grid-cols-[1.2fr_0.8fr]">
+            <div className="space-y-6">
+              <div className="overflow-hidden rounded-3xl border border-[#E5E7EB] bg-white shadow-lg">
+                <div className="border-b border-[#E5E7EB] px-6 py-5">
+                  <h2 className="text-xl font-semibold text-[#1A2E28]">
+                    Existing Products
+                  </h2>
+                  <p className="mt-1 text-sm text-[#4a6b5f]">
+                    {products.length} products currently available.
+                  </p>
+                </div>
+
+                <div className="overflow-x-auto">
+                  <table className="min-w-full text-left text-sm text-[#334155]">
+                    <thead className="bg-[#F8FAFC] text-xs uppercase tracking-wider text-[#64748B]">
+                      <tr>
+                        <th className="px-4 py-3">Name</th>
+                        <th className="px-4 py-3">Category</th>
+                        <th className="px-4 py-3">Price</th>
+                        <th className="px-4 py-3">Discount</th>
+                        <th className="px-4 py-3">Stock</th>
+                        <th className="px-4 py-3">Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {products.map((product) => (
+                        <tr
+                          key={product.id}
+                          className="border-t border-[#E5E7EB]"
+                        >
+                          <td className="px-4 py-3 font-medium text-[#0F172A]">
+                            {product.name}
+                          </td>
+                          <td className="px-4 py-3 text-[#475569]">
+                            {product.category}
+                          </td>
+                          <td className="px-4 py-3 text-[#475569]">
+                            <div className="space-y-1">
+                              <p>BDT {product.price.toFixed(2)}</p>
+                              {hasDiscount(product) && (
+                                <p className="text-xs font-semibold text-[#2F5D50]">
+                                  Now BDT {getDiscountedPrice(product).toFixed(2)}
+                                </p>
+                              )}
+                            </div>
+                          </td>
+                          <td className="px-4 py-3 text-[#475569]">
+                            {product.discountPercent ?? 0}%
+                          </td>
+                          <td className="px-4 py-3 text-[#475569]">
+                            {product.inStock ? "Yes" : "No"}
+                          </td>
+                          <td className="flex flex-wrap gap-2 px-4 py-3">
+                            <button
+                              type="button"
+                              onClick={() => handleEdit(product)}
+                              className="rounded-full bg-[#A8C686]/15 px-3 py-2 text-xs font-semibold text-[#2F5D50] transition hover:bg-[#A8C686]/25"
+                            >
+                              Edit
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => void onDelete(product.id)}
+                              className="rounded-full bg-[#F87171]/15 px-3 py-2 text-xs font-semibold text-[#B91C1C] transition hover:bg-[#F87171]/25"
+                            >
+                              Delete
+                            </button>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+
+            <div className="rounded-3xl border border-[#E5E7EB] bg-white p-6 shadow-lg">
+              <div className="mb-6">
                 <h2 className="text-xl font-semibold text-[#1A2E28]">
-                  Existing Products
+                  {editingId ? "Edit Product" : "Add New Product"}
                 </h2>
-                <p className="text-sm text-[#4a6b5f] mt-1">
-                  {products.length} products currently available.
+                <p className="mt-1 text-sm text-[#4a6b5f]">
+                  {editingId
+                    ? "Update the selected product details and save your changes."
+                    : "Create a new product entry for the storefront."}
                 </p>
               </div>
-              <div className="overflow-x-auto">
-                <table className="min-w-full text-left text-sm text-[#334155]">
-                  <thead className="bg-[#F8FAFC] text-xs uppercase tracking-wider text-[#64748B]">
-                    <tr>
-                      <th className="px-4 py-3">Name</th>
-                      <th className="px-4 py-3">Category</th>
-                      <th className="px-4 py-3">Price</th>
-                      <th className="px-4 py-3">Stock</th>
-                      <th className="px-4 py-3">Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {products.map((product) => (
-                      <tr
-                        key={product.id}
-                        className="border-t border-[#E5E7EB]"
-                      >
-                        <td className="px-4 py-3 font-medium text-[#0F172A]">
-                          {product.name}
-                        </td>
-                        <td className="px-4 py-3 text-[#475569]">
-                          {product.category}
-                        </td>
-                        <td className="px-4 py-3 text-[#475569]">
-                          ৳{product.price.toFixed(2)}
-                        </td>
-                        <td className="px-4 py-3 text-[#475569]">
-                          {product.inStock ? "Yes" : "No"}
-                        </td>
-                        <td className="px-4 py-3 flex flex-wrap gap-2">
-                          <button
-                            onClick={() => handleEdit(product)}
-                            className="px-3 py-2 rounded-full bg-[#A8C686]/15 text-[#2F5D50] text-xs font-semibold hover:bg-[#A8C686]/25 transition"
-                          >
-                            Edit
-                          </button>
-                          <button
-                            onClick={() => onDelete(product.id)}
-                            className="px-3 py-2 rounded-full bg-[#F87171]/15 text-[#B91C1C] text-xs font-semibold hover:bg-[#F87171]/25 transition"
-                          >
-                            Delete
-                          </button>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          </div>
 
-          <div className="bg-white rounded-3xl shadow-lg border border-[#E5E7EB] p-6">
-            <div className="mb-6">
-              <h2 className="text-xl font-semibold text-[#1A2E28]">
-                {editingId ? "Edit Product" : "Add New Product"}
-              </h2>
-              <p className="text-sm text-[#4a6b5f] mt-1">
-                {editingId
-                  ? "Update the selected product details and save your changes."
-                  : "Create a new product entry for the storefront."}
-              </p>
-            </div>
+              <form onSubmit={handleSubmit} className="space-y-4">
+                {error && <p className="text-sm text-[#B91C1C]">{error}</p>}
 
-            <form onSubmit={handleSubmit} className="space-y-4">
-              {error && <p className="text-sm text-[#B91C1C]">{error}</p>}
+                <div className="grid gap-4 sm:grid-cols-2">
+                  <label className="block text-sm font-medium text-[#334155]">
+                    Name
+                    <input
+                      type="text"
+                      value={form.name}
+                      onChange={(event) =>
+                        handleChange("name", event.target.value)
+                      }
+                      className="mt-2 w-full rounded-2xl border border-[#D1D5DB] bg-[#F8FAFC] px-4 py-3 text-sm text-[#0F172A] focus:border-[#2F5D50] focus:outline-none"
+                    />
+                  </label>
 
-              <div className="grid gap-4 sm:grid-cols-2">
+                  <label className="block text-sm font-medium text-[#334155]">
+                    Category
+                    <select
+                      value={form.category}
+                      onChange={(event) =>
+                        handleChange("category", event.target.value)
+                      }
+                      className="mt-2 w-full rounded-2xl border border-[#D1D5DB] bg-[#F8FAFC] px-4 py-3 text-sm text-[#0F172A] focus:border-[#2F5D50] focus:outline-none"
+                    >
+                      {categoryOptions.map((category) => (
+                        <option key={category.id} value={category.id}>
+                          {category.label}
+                        </option>
+                      ))}
+                    </select>
+                  </label>
+                </div>
+
+                <div className="grid gap-4 sm:grid-cols-2">
+                  <label className="block text-sm font-medium text-[#334155]">
+                    Price
+                    <input
+                      type="number"
+                      step="0.01"
+                      value={form.price}
+                      onChange={(event) =>
+                        handleChange("price", event.target.value)
+                      }
+                      className="mt-2 w-full rounded-2xl border border-[#D1D5DB] bg-[#F8FAFC] px-4 py-3 text-sm text-[#0F172A] focus:border-[#2F5D50] focus:outline-none"
+                    />
+                  </label>
+
+                  <label className="block text-sm font-medium text-[#334155]">
+                    Discount (%)
+                    <input
+                      type="number"
+                      step="1"
+                      min="0"
+                      max="100"
+                      value={form.discountPercent}
+                      onChange={(event) =>
+                        handleChange("discountPercent", event.target.value)
+                      }
+                      className="mt-2 w-full rounded-2xl border border-[#D1D5DB] bg-[#F8FAFC] px-4 py-3 text-sm text-[#0F172A] focus:border-[#2F5D50] focus:outline-none"
+                    />
+                  </label>
+
+                  <label className="block text-sm font-medium text-[#334155]">
+                    Unit
+                    <input
+                      type="text"
+                      value={form.unit}
+                      onChange={(event) =>
+                        handleChange("unit", event.target.value)
+                      }
+                      className="mt-2 w-full rounded-2xl border border-[#D1D5DB] bg-[#F8FAFC] px-4 py-3 text-sm text-[#0F172A] focus:border-[#2F5D50] focus:outline-none"
+                    />
+                  </label>
+                </div>
+
                 <label className="block text-sm font-medium text-[#334155]">
-                  Name
-                  <input
-                    type="text"
-                    value={form.name}
+                  Description
+                  <textarea
+                    value={form.description}
                     onChange={(event) =>
-                      handleChange("name", event.target.value)
+                      handleChange("description", event.target.value)
                     }
+                    rows={4}
                     className="mt-2 w-full rounded-2xl border border-[#D1D5DB] bg-[#F8FAFC] px-4 py-3 text-sm text-[#0F172A] focus:border-[#2F5D50] focus:outline-none"
                   />
                 </label>
+
                 <label className="block text-sm font-medium text-[#334155]">
-                  Category
-                  <select
-                    value={form.category}
-                    onChange={(event) =>
-                      handleChange("category", event.target.value)
-                    }
-                    className="mt-2 w-full rounded-2xl border border-[#D1D5DB] bg-[#F8FAFC] px-4 py-3 text-sm text-[#0F172A] focus:border-[#2F5D50] focus:outline-none"
-                  >
-                    {categoryOptions.map((category) => (
-                      <option key={category.id} value={category.id}>
-                        {category.label}
-                      </option>
-                    ))}
-                  </select>
+                  Product Image 1
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={(event) => handleFileChange(event, 1)}
+                    disabled={uploading}
+                    className="mt-2 w-full rounded-2xl border border-[#D1D5DB] bg-[#F8FAFC] px-4 py-3 text-sm text-[#0F172A] file:mr-4 file:rounded-lg file:border-0 file:bg-[#2F5D50] file:px-4 file:py-2 file:text-sm file:font-semibold file:text-white hover:file:bg-[#264d43] focus:border-[#2F5D50] focus:outline-none"
+                  />
+                  {selectedFiles.file1 && (
+                    <p className="mt-2 text-sm text-[#2F5D50]">
+                      Selected: {selectedFiles.file1.name}
+                    </p>
+                  )}
+                  {!selectedFiles.file1 && form.image && (
+                    <p className="mt-2 text-sm text-[#4a6b5f]">
+                      Current image: {form.image}
+                    </p>
+                  )}
                 </label>
-              </div>
 
-              <div className="grid gap-4 sm:grid-cols-2">
                 <label className="block text-sm font-medium text-[#334155]">
-                  Price
+                  Product Image 2 (Optional)
                   <input
-                    type="number"
-                    step="0.01"
-                    value={form.price}
-                    onChange={(event) =>
-                      handleChange("price", event.target.value)
-                    }
-                    className="mt-2 w-full rounded-2xl border border-[#D1D5DB] bg-[#F8FAFC] px-4 py-3 text-sm text-[#0F172A] focus:border-[#2F5D50] focus:outline-none"
+                    type="file"
+                    accept="image/*"
+                    onChange={(event) => handleFileChange(event, 2)}
+                    disabled={uploading}
+                    className="mt-2 w-full rounded-2xl border border-[#D1D5DB] bg-[#F8FAFC] px-4 py-3 text-sm text-[#0F172A] file:mr-4 file:rounded-lg file:border-0 file:bg-[#2F5D50] file:px-4 file:py-2 file:text-sm file:font-semibold file:text-white hover:file:bg-[#264d43] focus:border-[#2F5D50] focus:outline-none"
                   />
+                  {selectedFiles.file2 && (
+                    <p className="mt-2 text-sm text-[#2F5D50]">
+                      Selected: {selectedFiles.file2.name}
+                    </p>
+                  )}
+                  {!selectedFiles.file2 && form.image2 && (
+                    <p className="mt-2 text-sm text-[#4a6b5f]">
+                      Current image: {form.image2}
+                    </p>
+                  )}
                 </label>
+
                 <label className="block text-sm font-medium text-[#334155]">
-                  Unit
+                  Product Image 3 (Optional)
                   <input
-                    type="text"
-                    value={form.unit}
-                    onChange={(event) =>
-                      handleChange("unit", event.target.value)
-                    }
-                    className="mt-2 w-full rounded-2xl border border-[#D1D5DB] bg-[#F8FAFC] px-4 py-3 text-sm text-[#0F172A] focus:border-[#2F5D50] focus:outline-none"
+                    type="file"
+                    accept="image/*"
+                    onChange={(event) => handleFileChange(event, 3)}
+                    disabled={uploading}
+                    className="mt-2 w-full rounded-2xl border border-[#D1D5DB] bg-[#F8FAFC] px-4 py-3 text-sm text-[#0F172A] file:mr-4 file:rounded-lg file:border-0 file:bg-[#2F5D50] file:px-4 file:py-2 file:text-sm file:font-semibold file:text-white hover:file:bg-[#264d43] focus:border-[#2F5D50] focus:outline-none"
                   />
+                  {uploading && (
+                    <p className="mt-2 text-sm text-[#F4A261]">
+                      Uploading images...
+                    </p>
+                  )}
+                  {selectedFiles.file3 && (
+                    <p className="mt-2 text-sm text-[#2F5D50]">
+                      Selected: {selectedFiles.file3.name}
+                    </p>
+                  )}
+                  {!selectedFiles.file3 && form.image3 && (
+                    <p className="mt-2 text-sm text-[#4a6b5f]">
+                      Current image: {form.image3}
+                    </p>
+                  )}
                 </label>
-              </div>
 
-              <label className="block text-sm font-medium text-[#334155]">
-                Description
-                <textarea
-                  value={form.description}
-                  onChange={(event) =>
-                    handleChange("description", event.target.value)
-                  }
-                  className="mt-2 w-full rounded-2xl border border-[#D1D5DB] bg-[#F8FAFC] px-4 py-3 text-sm text-[#0F172A] focus:border-[#2F5D50] focus:outline-none"
-                  rows={4}
-                />
-              </label>
+                <div className="grid gap-4 sm:grid-cols-2">
+                  <label className="block text-sm font-medium text-[#334155]">
+                    Badge
+                    <input
+                      type="text"
+                      value={form.badge}
+                      onChange={(event) =>
+                        handleChange("badge", event.target.value)
+                      }
+                      className="mt-2 w-full rounded-2xl border border-[#D1D5DB] bg-[#F8FAFC] px-4 py-3 text-sm text-[#0F172A] focus:border-[#2F5D50] focus:outline-none"
+                    />
+                  </label>
 
-              <label className="block text-sm font-medium text-[#334155]">
-                Product Images (Image 1)
-                <input
-                  type="file"
-                  accept="image/*"
-                  onChange={(event) => handleFileChange(event, 1)}
-                  className="mt-2 w-full rounded-2xl border border-[#D1D5DB] bg-[#F8FAFC] px-4 py-3 text-sm text-[#0F172A] focus:border-[#2F5D50] focus:outline-none file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-[#2F5D50] file:text-white hover:file:bg-[#264d43]"
-                  disabled={uploading}
-                />
-                {selectedFiles.file1 && (
-                  <p className="mt-2 text-sm text-[#2F5D50]">
-                    Selected: {selectedFiles.file1.name}
-                  </p>
-                )}
-                {!selectedFiles.file1 && form.image && (
-                  <p className="mt-2 text-sm text-[#4a6b5f]">
-                    Current image: {form.image}
-                  </p>
-                )}
-              </label>
+                  <label className="block text-sm font-medium text-[#334155]">
+                    Rating
+                    <input
+                      type="number"
+                      step="0.1"
+                      min="0"
+                      max="5"
+                      value={form.rating}
+                      onChange={(event) =>
+                        handleChange("rating", event.target.value)
+                      }
+                      className="mt-2 w-full rounded-2xl border border-[#D1D5DB] bg-[#F8FAFC] px-4 py-3 text-sm text-[#0F172A] focus:border-[#2F5D50] focus:outline-none"
+                    />
+                  </label>
+                </div>
 
-              <label className="block text-sm font-medium text-[#334155]">
-                Product Image 2 (Optional)
-                <input
-                  type="file"
-                  accept="image/*"
-                  onChange={(event) => handleFileChange(event, 2)}
-                  className="mt-2 w-full rounded-2xl border border-[#D1D5DB] bg-[#F8FAFC] px-4 py-3 text-sm text-[#0F172A] focus:border-[#2F5D50] focus:outline-none file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-[#2F5D50] file:text-white hover:file:bg-[#264d43]"
-                  disabled={uploading}
-                />
-                {selectedFiles.file2 && (
-                  <p className="mt-2 text-sm text-[#2F5D50]">
-                    Selected: {selectedFiles.file2.name}
-                  </p>
-                )}
-                {!selectedFiles.file2 && form.image2 && (
-                  <p className="mt-2 text-sm text-[#4a6b5f]">
-                    Current image: {form.image2}
-                  </p>
-                )}
-              </label>
+                <div className="grid gap-4 sm:grid-cols-2">
+                  <label className="block text-sm font-medium text-[#334155]">
+                    Reviews
+                    <input
+                      type="number"
+                      step="1"
+                      min="0"
+                      value={form.reviews}
+                      onChange={(event) =>
+                        handleChange("reviews", event.target.value)
+                      }
+                      className="mt-2 w-full rounded-2xl border border-[#D1D5DB] bg-[#F8FAFC] px-4 py-3 text-sm text-[#0F172A] focus:border-[#2F5D50] focus:outline-none"
+                    />
+                  </label>
 
-              <label className="block text-sm font-medium text-[#334155]">
-                Product Image 3 (Optional)
-                <input
-                  type="file"
-                  accept="image/*"
-                  onChange={(event) => handleFileChange(event, 3)}
-                  className="mt-2 w-full rounded-2xl border border-[#D1D5DB] bg-[#F8FAFC] px-4 py-3 text-sm text-[#0F172A] focus:border-[#2F5D50] focus:outline-none file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-[#2F5D50] file:text-white hover:file:bg-[#264d43]"
-                  disabled={uploading}
-                />
-                {uploading && (
-                  <p className="mt-2 text-sm text-[#F4A261]">
-                    Uploading images...
-                  </p>
-                )}
-                {selectedFiles.file3 && (
-                  <p className="mt-2 text-sm text-[#2F5D50]">
-                    Selected: {selectedFiles.file3.name}
-                  </p>
-                )}
-                {!selectedFiles.file3 && form.image3 && (
-                  <p className="mt-2 text-sm text-[#4a6b5f]">
-                    Current image: {form.image3}
-                  </p>
-                )}
-              </label>
+                  <label className="flex items-center gap-3 text-sm font-medium text-[#334155]">
+                    <input
+                      type="checkbox"
+                      checked={form.inStock}
+                      onChange={(event) =>
+                        handleChange("inStock", event.target.checked)
+                      }
+                      className="h-4 w-4 rounded border-[#D1D5DB] text-[#2F5D50] focus:ring-[#2F5D50]"
+                    />
+                    In Stock
+                  </label>
+                </div>
 
-              <div className="grid gap-4 sm:grid-cols-2">
-                <label className="block text-sm font-medium text-[#334155]">
-                  Badge
-                  <input
-                    type="text"
-                    value={form.badge}
-                    onChange={(event) =>
-                      handleChange("badge", event.target.value)
-                    }
-                    className="mt-2 w-full rounded-2xl border border-[#D1D5DB] bg-[#F8FAFC] px-4 py-3 text-sm text-[#0F172A] focus:border-[#2F5D50] focus:outline-none"
-                  />
-                </label>
-                <label className="block text-sm font-medium text-[#334155]">
-                  Rating
-                  <input
-                    type="number"
-                    step="0.1"
-                    min="0"
-                    max="5"
-                    value={form.rating}
-                    onChange={(event) =>
-                      handleChange("rating", event.target.value)
-                    }
-                    className="mt-2 w-full rounded-2xl border border-[#D1D5DB] bg-[#F8FAFC] px-4 py-3 text-sm text-[#0F172A] focus:border-[#2F5D50] focus:outline-none"
-                  />
-                </label>
-              </div>
-
-              <div className="grid gap-4 sm:grid-cols-2">
-                <label className="block text-sm font-medium text-[#334155]">
-                  Reviews
-                  <input
-                    type="number"
-                    step="1"
-                    min="0"
-                    value={form.reviews}
-                    onChange={(event) =>
-                      handleChange("reviews", event.target.value)
-                    }
-                    className="mt-2 w-full rounded-2xl border border-[#D1D5DB] bg-[#F8FAFC] px-4 py-3 text-sm text-[#0F172A] focus:border-[#2F5D50] focus:outline-none"
-                  />
-                </label>
-                <label className="flex items-center gap-3 text-sm font-medium text-[#334155]">
-                  <input
-                    type="checkbox"
-                    checked={form.inStock}
-                    onChange={(event) =>
-                      handleChange("inStock", event.target.checked)
-                    }
-                    className="h-4 w-4 rounded border-[#D1D5DB] text-[#2F5D50] focus:ring-[#2F5D50]"
-                  />
-                  In Stock
-                </label>
-              </div>
-
-              <div className="flex flex-wrap gap-3 pt-2">
-                <button
-                  type="submit"
-                  className="inline-flex items-center justify-center rounded-full bg-[#2F5D50] px-5 py-3 text-sm font-semibold text-white transition hover:bg-[#264d43]"
-                >
-                  {editingId ? "Update Product" : "Add Product"}
-                </button>
-                {editingId && (
+                <div className="flex flex-wrap gap-3 pt-2">
                   <button
-                    type="button"
-                    onClick={resetForm}
-                    className="inline-flex items-center justify-center rounded-full border border-[#D1D5DB] bg-white px-5 py-3 text-sm font-semibold text-[#475569] transition hover:bg-[#F8FAFC]"
+                    type="submit"
+                    className="inline-flex items-center justify-center rounded-full bg-[#2F5D50] px-5 py-3 text-sm font-semibold text-white transition hover:bg-[#264d43]"
                   >
-                    Cancel
+                    {editingId ? "Update Product" : "Add Product"}
                   </button>
-                )}
-              </div>
-            </form>
+
+                  {editingId && (
+                    <button
+                      type="button"
+                      onClick={resetForm}
+                      className="inline-flex items-center justify-center rounded-full border border-[#D1D5DB] bg-white px-5 py-3 text-sm font-semibold text-[#475569] transition hover:bg-[#F8FAFC]"
+                    >
+                      Cancel
+                    </button>
+                  )}
+                </div>
+              </form>
+            </div>
           </div>
-        </div>
+        )}
       </div>
     </section>
   );

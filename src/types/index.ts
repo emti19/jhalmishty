@@ -4,6 +4,7 @@ export interface Product {
   description: string;
   details?: string;
   price: number;
+  discountPercent?: number;
   unit: string;
   category: Category;
   image: string;
@@ -41,20 +42,33 @@ export interface ShippingAddress {
   phone: string;
   address: string;
   city: string;
-  state: string;
-  zipCode: string;
+  state?: string;
+  zipCode?: string;
   country: string;
+  deliveryZone: DeliveryZone;
 }
+
+export type PaymentMethod = "cod" | "bkash" | "bank";
+
+export type DeliveryZone = "inside_chittagong" | "outside_chittagong";
+
+export type OrderStatus =
+  | "pending"
+  | "confirmed"
+  | "shipped"
+  | "delivered"
+  | "cancelled";
 
 export interface Order {
   id: string;
   items: CartItem[];
   shippingAddress: ShippingAddress;
-  paymentMethod: "card" | "paypal" | "bank";
+  paymentMethod: PaymentMethod;
   subtotal: number;
   shipping: number;
   tax: number;
   total: number;
-  status: "pending" | "confirmed" | "shipped" | "delivered";
-  createdAt: Date;
+  status: OrderStatus;
+  createdAt: string;
+  updatedAt?: string;
 }

@@ -1,6 +1,22 @@
 import { Product } from "../types";
 import { supabase } from "../lib/supabase";
 
+type ProductRow = Omit<Product, "id" | "inStock" | "discountPercent"> & {
+  id: number;
+  discount_percent: number | null;
+  in_stock: boolean;
+};
+
+function mapProductRow(item: ProductRow): Product {
+  return {
+    ...item,
+    id: item.id.toString(),
+    details: item.details ?? "",
+    discountPercent: Number(item.discount_percent ?? 0),
+    inStock: item.in_stock,
+  };
+}
+
 export async function getProducts(): Promise<Product[] | null> {
   const { data, error } = await supabase.from("products").select("*");
 
@@ -10,14 +26,7 @@ export async function getProducts(): Promise<Product[] | null> {
   }
 
   // Transform database data to Product type
-  return (
-    (data as any[])?.map((item) => ({
-      ...item,
-      id: item.id.toString(), // Convert bigint ID to string
-      details: item.details ?? "",
-      inStock: item.in_stock, // Map in_stock to inStock
-    })) ?? []
-  );
+  return ((data ?? []) as ProductRow[]).map(mapProductRow);
 }
 
 export async function insertProduct(product: Product): Promise<Product | null> {
@@ -28,6 +37,7 @@ export async function insertProduct(product: Product): Promise<Product | null> {
     description: product.description,
     details: product.details,
     price: product.price,
+    discount_percent: product.discountPercent ?? 0,
     unit: product.unit,
     category: product.category,
     image: product.image,
@@ -52,11 +62,7 @@ export async function insertProduct(product: Product): Promise<Product | null> {
 
   // Transform back to Product type
   if (data) {
-    return {
-      ...data,
-      id: data.id.toString(), // Convert back to string for Product type
-      inStock: data.in_stock, // Map back to inStock
-    } as Product;
+    return mapProductRow(data as ProductRow);
   }
 
   return null;
@@ -69,6 +75,7 @@ export async function updateProduct(product: Product): Promise<Product | null> {
     description: product.description,
     details: product.details,
     price: product.price,
+    discount_percent: product.discountPercent ?? 0,
     unit: product.unit,
     category: product.category,
     image: product.image,
@@ -94,11 +101,7 @@ export async function updateProduct(product: Product): Promise<Product | null> {
 
   // Transform back to Product type
   if (data) {
-    return {
-      ...data,
-      id: data.id.toString(), // Convert back to string for Product type
-      inStock: data.in_stock, // Map back to inStock
-    } as Product;
+    return mapProductRow(data as ProductRow);
   }
 
   return null;
