@@ -89,9 +89,18 @@ export async function updateOrderStatus(
 }
 
 export async function deleteOrder(id: string): Promise<void> {
-  const { error } = await supabase.from("orders").delete().eq("id", id);
+  const { count, error } = await supabase
+    .from("orders")
+    .delete({ count: "exact" })
+    .eq("id", id);
 
   if (error) {
     throw new Error(error.message);
+  }
+
+  if (count !== 1) {
+    throw new Error(
+      "Order was not deleted in Supabase. Make sure the orders table has an authenticated DELETE policy.",
+    );
   }
 }

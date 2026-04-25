@@ -52,6 +52,15 @@ export type PaymentMethod = "cod" | "bkash" | "bank";
 
 export type DeliveryZone = "inside_chittagong" | "outside_chittagong";
 
+export type HeroSlidePosition = 1 | 2 | 3;
+
+export interface HeroSlide {
+  position: HeroSlidePosition;
+  imageUrl: string;
+  storagePath: string;
+  updatedAt?: string;
+}
+
 export type OrderStatus =
   | "pending"
   | "confirmed"

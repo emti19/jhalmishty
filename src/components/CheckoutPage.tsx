@@ -22,7 +22,11 @@ const DELIVERY_RATES: Record<DeliveryZone, number> = {
   outside_chittagong: 120,
 };
 
-const initialAddress: ShippingAddress = {
+type ShippingAddressForm = Omit<ShippingAddress, "deliveryZone"> & {
+  deliveryZone: DeliveryZone | "";
+};
+
+const initialAddress: ShippingAddressForm = {
   firstName: "",
   lastName: "",
   email: "",
@@ -30,7 +34,7 @@ const initialAddress: ShippingAddress = {
   address: "",
   city: "",
   country: "Bangladesh",
-  deliveryZone: "inside_chittagong",
+  deliveryZone: "",
 };
 
 function getDeliveryZoneLabel(deliveryZone: DeliveryZone) {
@@ -41,20 +45,25 @@ function getDeliveryZoneLabel(deliveryZone: DeliveryZone) {
 
 export function CheckoutPage({ cart, onOrderComplete }: CheckoutPageProps) {
   const navigate = useNavigate();
-  const [address, setAddress] = useState<ShippingAddress>(initialAddress);
+  const [address, setAddress] = useState<ShippingAddressForm>(initialAddress);
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>("cod");
   const [isProcessing, setIsProcessing] = useState(false);
-  const [errors, setErrors] = useState<Partial<ShippingAddress>>({});
+  const [errors, setErrors] = useState<
+    Partial<Record<keyof ShippingAddressForm, string>>
+  >({});
   const [submitError, setSubmitError] = useState("");
 
   const shipping =
-    cart.total >= FREE_DELIVERY_THRESHOLD
+    !address.deliveryZone || cart.total >= FREE_DELIVERY_THRESHOLD
       ? 0
       : DELIVERY_RATES[address.deliveryZone];
   const tax = 0;
   const total = cart.total + shipping;
 
-  const handleAddressChange = (field: keyof ShippingAddress, value: string) => {
+  const handleAddressChange = (
+    field: keyof ShippingAddressForm,
+    value: string,
+  ) => {
     setAddress((prev) => ({ ...prev, [field]: value }));
     if (errors[field]) {
       setErrors((prev) => ({ ...prev, [field]: undefined }));
@@ -62,13 +71,15 @@ export function CheckoutPage({ cart, onOrderComplete }: CheckoutPageProps) {
   };
 
   const validateForm = (): boolean => {
-    const newErrors: Partial<ShippingAddress> = {};
+    const newErrors: Partial<Record<keyof ShippingAddressForm, string>> = {};
 
     if (!address.firstName.trim()) newErrors.firstName = "First name is required";
     if (!address.lastName.trim()) newErrors.lastName = "Last name is required";
     if (!address.phone.trim()) newErrors.phone = "Phone is required";
     if (!address.address.trim()) newErrors.address = "Address is required";
     if (!address.city.trim()) newErrors.city = "City is required";
+    if (!address.deliveryZone)
+      newErrors.deliveryZone = "Please select a delivery area";
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -78,14 +89,20 @@ export function CheckoutPage({ cart, onOrderComplete }: CheckoutPageProps) {
     event.preventDefault();
 
     if (!validateForm()) return;
+    if (!address.deliveryZone) return;
 
     setIsProcessing(true);
     setSubmitError("");
 
+    const shippingAddress: ShippingAddress = {
+      ...address,
+      deliveryZone: address.deliveryZone,
+    };
+
     const order: Order = {
       id: `ORD-${Date.now()}`,
       items: cart.items,
-      shippingAddress: address,
+      shippingAddress,
       paymentMethod,
       subtotal: cart.total,
       shipping,
@@ -295,22 +312,68 @@ export function CheckoutPage({ cart, onOrderComplete }: CheckoutPageProps) {
 
                 <div>
                   <label className="mb-2 block text-sm font-medium text-[#334155]">
-                    Delivery Area
+                    Delivery Area *
                   </label>
-                  <select
-                    value={address.deliveryZone}
-                    onChange={(event) =>
-                      handleAddressChange("deliveryZone", event.target.value)
-                    }
-                    className="w-full rounded-2xl border border-[#D1D5DB] bg-[#F8FAFC] px-4 py-3 text-sm focus:border-[#2F5D50] focus:outline-none"
-                  >
-                    <option value="inside_chittagong">
-                      Inside Chittagong - BDT 70
-                    </option>
-                    <option value="outside_chittagong">
-                      Outside Chittagong - BDT 120
-                    </option>
-                  </select>
+                  <div className="grid gap-3 sm:grid-cols-2">
+                    {[
+                      {
+                        id: "inside_chittagong",
+                        label: "Inside Chittagong",
+                        price: "BDT 70",
+                      },
+                      {
+                        id: "outside_chittagong",
+                        label: "Outside Chittagong",
+                        price: "BDT 120",
+                      },
+                    ].map(({ id, label, price }) => (
+                      <label
+                        key={id}
+                        className={`cursor-pointer rounded-2xl border p-4 transition-colors ${
+                          address.deliveryZone === id
+                            ? "border-[#2F5D50] bg-[#2F5D50]/5"
+                            : errors.deliveryZone
+                              ? "border-red-300 bg-red-50/50 hover:border-[#2F5D50]/50"
+                              : "border-[#D1D5DB] bg-[#F8FAFC] hover:border-[#2F5D50]/50"
+                        }`}
+                      >
+                        <input
+                          type="radio"
+                          name="deliveryZone"
+                          value={id}
+                          checked={address.deliveryZone === id}
+                          onChange={(event) =>
+                            handleAddressChange("deliveryZone", event.target.value)
+                          }
+                          className="sr-only"
+                        />
+                        <div className="flex items-start gap-3">
+                          <div
+                            className={`mt-0.5 flex h-5 w-5 items-center justify-center rounded-full border-2 ${
+                              address.deliveryZone === id
+                                ? "border-[#2F5D50]"
+                                : errors.deliveryZone
+                                  ? "border-red-300"
+                                  : "border-[#D1D5DB]"
+                            }`}
+                          >
+                            {address.deliveryZone === id && (
+                              <div className="h-3 w-3 rounded-full bg-[#2F5D50]" />
+                            )}
+                          </div>
+                          <div>
+                            <p className="font-medium text-[#1A2E28]">{label}</p>
+                            <p className="text-sm text-[#4a6b5f]">{price}</p>
+                          </div>
+                        </div>
+                      </label>
+                    ))}
+                  </div>
+                  {errors.deliveryZone && (
+                    <p className="mt-1 text-xs text-red-500">
+                      {errors.deliveryZone}
+                    </p>
+                  )}
                   <p className="mt-2 text-xs text-[#4a6b5f]">
                     Delivery becomes free automatically on orders of BDT 2,000 or
                     more.
@@ -440,10 +503,18 @@ export function CheckoutPage({ cart, onOrderComplete }: CheckoutPageProps) {
                 </div>
                 <div className="flex justify-between text-sm">
                   <span className="text-[#4a6b5f]">
-                    Delivery ({getDeliveryZoneLabel(address.deliveryZone)})
+                    Delivery (
+                    {address.deliveryZone
+                      ? getDeliveryZoneLabel(address.deliveryZone)
+                      : "Select delivery area"}
+                    )
                   </span>
                   <span className="font-medium text-[#1A2E28]">
-                    {shipping === 0 ? "Free" : `BDT ${shipping.toFixed(2)}`}
+                    {!address.deliveryZone
+                      ? "Select area"
+                      : shipping === 0
+                        ? "Free"
+                        : `BDT ${shipping.toFixed(2)}`}
                   </span>
                 </div>
                 <div className="flex justify-between border-t border-[#E5E7EB] pt-2 text-lg font-bold">

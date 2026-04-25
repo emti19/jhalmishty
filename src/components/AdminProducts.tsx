@@ -1,19 +1,23 @@
 import { useState, type ChangeEvent, type FormEvent } from "react";
 import { categories } from "../data/products";
-import type { Product } from "../types";
+import type { HeroSlide, Product } from "../types";
 import { supabase } from "../lib/supabase";
 import { AdminOrders } from "./AdminOrders";
+import { AdminSliderManagement } from "./AdminSliderManagement";
 import { getDiscountedPrice, hasDiscount } from "../utils/pricing";
 
 interface AdminProductsProps {
   products: Product[];
+  heroSlides: HeroSlide[];
+  heroSlidesLoading: boolean;
   onAdd: (product: Product) => Promise<void> | void;
   onUpdate: (product: Product) => Promise<void> | void;
   onDelete: (id: string) => Promise<void> | void;
+  onHeroSlidesSaved: (slides: HeroSlide[]) => void;
   onSignOut: () => Promise<void> | void;
 }
 
-type AdminTab = "products" | "orders";
+type AdminTab = "products" | "orders" | "slider";
 
 const initialFormState = {
   name: "",
@@ -34,9 +38,12 @@ const initialFormState = {
 
 export function AdminProducts({
   products,
+  heroSlides,
+  heroSlidesLoading,
   onAdd,
   onUpdate,
   onDelete,
+  onHeroSlidesSaved,
   onSignOut,
 }: AdminProductsProps) {
   const [activeTab, setActiveTab] = useState<AdminTab>("products");
@@ -232,12 +239,25 @@ export function AdminProducts({
     }
   };
 
-  const title =
-    activeTab === "products" ? "Store Management" : "Order Management";
-  const description =
-    activeTab === "products"
-      ? "Add, edit, and remove storefront products while keeping product images and stock details current."
-      : "Track incoming orders, review customer details, and update delivery status without leaving the admin area.";
+  const adminTabDetails: Record<AdminTab, { title: string; description: string }> = {
+    products: {
+      title: "Store Management",
+      description:
+        "Add, edit, and remove storefront products while keeping product images and stock details current.",
+    },
+    orders: {
+      title: "Order Management",
+      description:
+        "Track incoming orders, review customer details, and update delivery status without leaving the admin area.",
+    },
+    slider: {
+      title: "Slider Management",
+      description:
+        "Control the hero slider on the homepage by uploading and saving three featured images.",
+    },
+  };
+
+  const { title, description } = adminTabDetails[activeTab];
 
   return (
     <section className="min-h-screen bg-[#FAF7F2] pb-16 pt-24 lg:pb-24 lg:pt-32">
@@ -287,10 +307,27 @@ export function AdminProducts({
           >
             Orders
           </button>
+          <button
+            type="button"
+            onClick={() => setActiveTab("slider")}
+            className={`rounded-full px-5 py-3 text-sm font-semibold transition ${
+              activeTab === "slider"
+                ? "bg-[#2F5D50] text-white shadow-sm"
+                : "border border-[#D1D5DB] bg-white text-[#475569] hover:bg-[#F8FAFC]"
+            }`}
+          >
+            Slider Management
+          </button>
         </div>
 
         {activeTab === "orders" ? (
           <AdminOrders />
+        ) : activeTab === "slider" ? (
+          <AdminSliderManagement
+            slides={heroSlides}
+            loading={heroSlidesLoading}
+            onSlidesSaved={onHeroSlidesSaved}
+          />
         ) : (
           <div className="grid gap-10 lg:grid-cols-[1.2fr_0.8fr]">
             <div className="space-y-6">

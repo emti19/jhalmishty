@@ -15,6 +15,7 @@ import { AdminProducts } from "./components/AdminProducts";
 import { AdminLogin } from "./components/AdminLogin";
 import { useCart } from "./hooks/useCart";
 import { useAuth } from "./hooks/useAuth";
+import { getHeroSlides } from "./services/heroSliderService";
 import {
   getProducts,
   insertProduct,
@@ -22,7 +23,7 @@ import {
   deleteProduct as deleteProductDb,
 } from "./services/productService";
 import { createOrder } from "./services/orderService";
-import { Product, Order } from "./types";
+import { HeroSlide, Product, Order } from "./types";
 import { products as initialProducts } from "./data/products";
 
 function App() {
@@ -32,6 +33,8 @@ function App() {
   const [cartOpen, setCartOpen] = useState(false);
   const [products, setProducts] = useState<Product[]>(initialProducts);
   const [loadingProducts, setLoadingProducts] = useState(true);
+  const [heroSlides, setHeroSlides] = useState<HeroSlide[]>([]);
+  const [loadingHeroSlides, setLoadingHeroSlides] = useState(true);
 
   useEffect(() => {
     async function loadProducts() {
@@ -49,7 +52,19 @@ function App() {
       }
     }
 
-    loadProducts();
+    async function loadHomepageSlider() {
+      try {
+        const fetchedSlides = await getHeroSlides();
+        setHeroSlides(fetchedSlides);
+      } catch (error) {
+        console.error("Failed to load hero slider images from database:", error);
+      } finally {
+        setLoadingHeroSlides(false);
+      }
+    }
+
+    void loadProducts();
+    void loadHomepageSlider();
   }, []);
 
   const handleAddToCart = (product: Product) => {
@@ -101,7 +116,7 @@ function App() {
 
   const homePage = (
     <main>
-      <Hero />
+      <Hero slides={heroSlides} />
       <ProductsPage
         products={products}
         onAddToCart={handleAddToCart}
@@ -160,9 +175,12 @@ function App() {
               ) : session ? (
                 <AdminProducts
                   products={products}
+                  heroSlides={heroSlides}
+                  heroSlidesLoading={loadingHeroSlides}
                   onAdd={handleAddProduct}
                   onUpdate={handleUpdateProduct}
                   onDelete={handleDeleteProduct}
+                  onHeroSlidesSaved={setHeroSlides}
                   onSignOut={signOut}
                 />
               ) : (

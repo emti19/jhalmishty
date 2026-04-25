@@ -67,3 +67,10 @@ for update
 to authenticated
 using (true)
 with check (true);
+
+drop policy if exists "Authenticated users can delete orders" on public.orders;
+create policy "Authenticated users can delete orders"
+on public.orders
+for delete
+to authenticated
+using (true);

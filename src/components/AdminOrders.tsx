@@ -169,7 +169,11 @@ export function AdminOrders() {
       setSelectedOrderId((current) => (current === order.id ? null : current));
     } catch (deleteError) {
       console.error("Failed to delete order:", deleteError);
-      setError("The order could not be deleted. Please try again.");
+      setError(
+        deleteError instanceof Error
+          ? deleteError.message
+          : "The order could not be deleted. Please try again.",
+      );
     } finally {
       setDeletingId(null);
     }

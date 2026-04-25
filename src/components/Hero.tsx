@@ -1,8 +1,60 @@
-import { ArrowRight, Award, Home, Leaf } from "lucide-react";
+import { useEffect, useState } from "react";
+import {
+  ArrowRight,
+  Award,
+  ChevronLeft,
+  ChevronRight,
+  Home,
+  Leaf,
+} from "lucide-react";
 import { Link } from "react-router-dom";
 import balachao from "../../assets/balachao.png";
+import type { HeroSlide } from "../types";
 
-export function Hero() {
+interface HeroProps {
+  slides: HeroSlide[];
+}
+
+const fallbackSlides: HeroSlide[] = [
+  {
+    position: 1,
+    imageUrl: balachao,
+    storagePath: "fallback/hero-slide-1",
+  },
+];
+
+export function Hero({ slides }: HeroProps) {
+  const sliderImages = slides.length > 0 ? slides : fallbackSlides;
+  const [activeSlide, setActiveSlide] = useState(0);
+
+  useEffect(() => {
+    if (activeSlide >= sliderImages.length) {
+      setActiveSlide(0);
+    }
+  }, [activeSlide, sliderImages.length]);
+
+  useEffect(() => {
+    if (sliderImages.length < 2) {
+      return;
+    }
+
+    const intervalId = window.setInterval(() => {
+      setActiveSlide((current) => (current + 1) % sliderImages.length);
+    }, 5000);
+
+    return () => window.clearInterval(intervalId);
+  }, [sliderImages.length]);
+
+  const goToPreviousSlide = () => {
+    setActiveSlide((current) =>
+      current === 0 ? sliderImages.length - 1 : current - 1,
+    );
+  };
+
+  const goToNextSlide = () => {
+    setActiveSlide((current) => (current + 1) % sliderImages.length);
+  };
+
   return (
     <section className="relative pt-24 pb-5 overflow-hidden bg-[#FAF7F2]">
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
@@ -66,12 +118,58 @@ export function Hero() {
 
           <div className="order-1 lg:order-2 relative">
             <div className="relative rounded-3xl overflow-hidden aspect-[4/3] lg:aspect-square shadow-2xl shadow-[#2F5D50]/10">
-              <img
-                src={balachao}
-                alt="Fresh organic produce"
-                className="w-full h-full object-cover"
-              />
+              {sliderImages.map((slide, index) => (
+                <img
+                  key={`${slide.position}-${slide.imageUrl}`}
+                  src={slide.imageUrl}
+                  alt={`Hero slider image ${index + 1}`}
+                  className={`absolute inset-0 h-full w-full object-cover transition-all duration-700 ${
+                    index === activeSlide
+                      ? "scale-100 opacity-100"
+                      : "scale-[1.03] opacity-0"
+                  }`}
+                />
+              ))}
               <div className="absolute inset-0 bg-gradient-to-t from-[#1A2E28]/20 to-transparent" />
+
+              {sliderImages.length > 1 && (
+                <>
+                  <div className="absolute inset-x-0 bottom-4 flex items-center justify-center gap-2">
+                    {sliderImages.map((slide, index) => (
+                      <button
+                        key={`slide-dot-${slide.position}`}
+                        type="button"
+                        onClick={() => setActiveSlide(index)}
+                        className={`h-2.5 rounded-full transition-all ${
+                          index === activeSlide
+                            ? "w-8 bg-white"
+                            : "w-2.5 bg-white/55 hover:bg-white/80"
+                        }`}
+                        aria-label={`Show slide ${index + 1}`}
+                      />
+                    ))}
+                  </div>
+
+                  <div className="absolute inset-x-4 top-4 flex justify-between">
+                    <button
+                      type="button"
+                      onClick={goToPreviousSlide}
+                      className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-white/90 text-[#1A2E28] shadow-lg transition hover:bg-white"
+                      aria-label="Previous slide"
+                    >
+                      <ChevronLeft className="h-5 w-5" />
+                    </button>
+                    <button
+                      type="button"
+                      onClick={goToNextSlide}
+                      className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-white/90 text-[#1A2E28] shadow-lg transition hover:bg-white"
+                      aria-label="Next slide"
+                    >
+                      <ChevronRight className="h-5 w-5" />
+                    </button>
+                  </div>
+                </>
+              )}
             </div>
 
             <div className="absolute -bottom-4 -left-4 bg-white rounded-2xl p-4 shadow-xl border border-[#A8C686]/20">
