@@ -8,7 +8,11 @@ import {
   ShoppingBag,
   Truck,
 } from "lucide-react";
-import { getOrders, updateOrderStatus } from "../services/orderService";
+import {
+  deleteOrder,
+  getOrders,
+  updateOrderStatus,
+} from "../services/orderService";
 import type { DeliveryZone, Order, OrderStatus } from "../types";
 import { getDiscountedPrice, hasDiscount } from "../utils/pricing";
 
@@ -71,6 +75,7 @@ export function AdminOrders() {
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [updatingId, setUpdatingId] = useState<string | null>(null);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
   const [error, setError] = useState("");
 
   const loadOrders = async (isRefresh = false) => {
@@ -143,6 +148,30 @@ export function AdminOrders() {
       setError("The order status could not be updated. Please try again.");
     } finally {
       setUpdatingId(null);
+    }
+  };
+
+  const handleDeleteOrder = async (order: Order) => {
+    const shouldDelete = window.confirm(
+      `Are you sure you want to delete order "${order.id}"?`,
+    );
+
+    if (!shouldDelete) {
+      return;
+    }
+
+    setDeletingId(order.id);
+
+    try {
+      setError("");
+      await deleteOrder(order.id);
+      setOrders((current) => current.filter((item) => item.id !== order.id));
+      setSelectedOrderId((current) => (current === order.id ? null : current));
+    } catch (deleteError) {
+      console.error("Failed to delete order:", deleteError);
+      setError("The order could not be deleted. Please try again.");
+    } finally {
+      setDeletingId(null);
     }
   };
 
@@ -272,7 +301,7 @@ export function AdminOrders() {
                     <th className="px-4 py-3">Total</th>
                     <th className="px-4 py-3">Status</th>
                     <th className="px-4 py-3">Placed</th>
-                    <th className="px-4 py-3">Update</th>
+                    <th className="px-4 py-3">Actions</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -323,23 +352,36 @@ export function AdminOrders() {
                         {formatDate(order.createdAt)}
                       </td>
                       <td className="px-4 py-3">
-                        <select
-                          value={order.status}
-                          onChange={(event) =>
-                            void handleStatusUpdate(
-                              order.id,
-                              event.target.value as OrderStatus,
-                            )
-                          }
-                          disabled={updatingId === order.id}
-                          className="rounded-full border border-[#D1D5DB] bg-white px-3 py-2 text-xs font-semibold text-[#0F172A] focus:border-[#2F5D50] focus:outline-none disabled:cursor-not-allowed disabled:bg-[#F8FAFC]"
-                        >
-                          {statusOptions.map((status) => (
-                            <option key={status} value={status}>
-                              {formatStatusLabel(status)}
-                            </option>
-                          ))}
-                        </select>
+                        <div className="flex flex-wrap items-center gap-2">
+                          <select
+                            value={order.status}
+                            onChange={(event) =>
+                              void handleStatusUpdate(
+                                order.id,
+                                event.target.value as OrderStatus,
+                              )
+                            }
+                            disabled={
+                              updatingId === order.id || deletingId === order.id
+                            }
+                            className="rounded-full border border-[#D1D5DB] bg-white px-3 py-2 text-xs font-semibold text-[#0F172A] focus:border-[#2F5D50] focus:outline-none disabled:cursor-not-allowed disabled:bg-[#F8FAFC]"
+                          >
+                            {statusOptions.map((status) => (
+                              <option key={status} value={status}>
+                                {formatStatusLabel(status)}
+                              </option>
+                            ))}
+                          </select>
+
+                          <button
+                            type="button"
+                            onClick={() => void handleDeleteOrder(order)}
+                            disabled={deletingId === order.id}
+                            className="rounded-full bg-[#F87171]/15 px-3 py-2 text-xs font-semibold text-[#B91C1C] transition hover:bg-[#F87171]/25 disabled:cursor-not-allowed disabled:opacity-60"
+                          >
+                            {deletingId === order.id ? "Deleting..." : "Delete"}
+                          </button>
+                        </div>
                       </td>
                     </tr>
                   ))}

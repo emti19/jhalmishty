@@ -87,3 +87,11 @@ export async function updateOrderStatus(
 
   return mapOrderRow(data as Record<string, unknown>);
 }
+
+export async function deleteOrder(id: string): Promise<void> {
+  const { error } = await supabase.from("orders").delete().eq("id", id);
+
+  if (error) {
+    throw new Error(error.message);
+  }
+}

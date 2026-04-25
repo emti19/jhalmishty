@@ -216,6 +216,22 @@ export function AdminProducts({
     setUploading(false);
   };
 
+  const handleDelete = async (product: Product) => {
+    const shouldDelete = window.confirm(
+      `Do you really want to delete the product "${product.name}"?`,
+    );
+
+    if (!shouldDelete) {
+      return;
+    }
+
+    await onDelete(product.id);
+
+    if (editingId === product.id) {
+      resetForm();
+    }
+  };
+
   const title =
     activeTab === "products" ? "Store Management" : "Order Management";
   const description =
@@ -338,7 +354,7 @@ export function AdminProducts({
                             </button>
                             <button
                               type="button"
-                              onClick={() => void onDelete(product.id)}
+                              onClick={() => void handleDelete(product)}
                               className="rounded-full bg-[#F87171]/15 px-3 py-2 text-xs font-semibold text-[#B91C1C] transition hover:bg-[#F87171]/25"
                             >
                               Delete
