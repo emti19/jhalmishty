@@ -129,8 +129,8 @@ export function CheckoutPage({ cart, onOrderComplete }: CheckoutPageProps) {
 
   if (cart.items.length === 0) {
     return (
-      <div className="min-h-screen bg-[#FAF7F2] pb-16 pt-24 lg:pb-24 lg:pt-32">
-        <div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8">
+      <div className="min-h-screen bg-[#FAF7F2] px-4 pb-16 pt-24 lg:pb-24 lg:pt-32">
+        <div className="mx-auto max-w-4xl">
           <div className="text-center">
             <h1 className="mb-4 text-2xl font-bold text-[#1A2E28]">
               Your cart is empty
@@ -148,34 +148,38 @@ export function CheckoutPage({ cart, onOrderComplete }: CheckoutPageProps) {
   }
 
   return (
-    <div className="min-h-screen bg-[#FAF7F2] pb-16 pt-24 lg:pb-24 lg:pt-32">
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div className="mb-8">
+    <div className="min-h-screen bg-[#FAF7F2] px-4 pb-16 pt-24 lg:pb-24 lg:pt-32">
+      <div className="mx-auto max-w-7xl">
+        {/* Back button */}
+        <div className="mb-6 lg:mb-8">
           <button
             onClick={() => navigate(-1)}
-            className="inline-flex items-center gap-2 text-[#2F5D50] transition-colors hover:text-[#1A2E28]"
+            className="inline-flex items-center gap-2 text-sm text-[#2F5D50] transition-colors hover:text-[#1A2E28] lg:text-base"
           >
             <ArrowLeft className="h-4 w-4" />
             Back to Cart
           </button>
         </div>
 
-        <div className="grid gap-12 lg:grid-cols-2 lg:gap-16">
+        {/* Main grid: stacks on mobile, side‑by‑side on large screens */}
+        <div className="grid gap-8 lg:grid-cols-2 lg:gap-12">
+          {/* Left column – Shipping & Payment */}
           <div className="space-y-8">
             <div>
-              <h2 className="mb-6 text-2xl font-bold text-[#1A2E28]">
+              <h2 className="mb-4 text-xl font-bold text-[#1A2E28] lg:mb-6 lg:text-2xl">
                 Shipping Information
               </h2>
-              <form onSubmit={handleSubmit} className="space-y-6">
+              <form onSubmit={handleSubmit} className="space-y-5 lg:space-y-6">
                 {submitError && (
                   <div className="rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
                     {submitError}
                   </div>
                 )}
 
+                {/* First & Last Name */}
                 <div className="grid gap-4 sm:grid-cols-2">
                   <div>
-                    <label className="mb-2 block text-sm font-medium text-[#334155]">
+                    <label className="mb-1.5 block text-sm font-medium text-[#334155]">
                       First Name *
                     </label>
                     <input
@@ -196,7 +200,7 @@ export function CheckoutPage({ cart, onOrderComplete }: CheckoutPageProps) {
                   </div>
 
                   <div>
-                    <label className="mb-2 block text-sm font-medium text-[#334155]">
+                    <label className="mb-1.5 block text-sm font-medium text-[#334155]">
                       Last Name *
                     </label>
                     <input
@@ -217,9 +221,10 @@ export function CheckoutPage({ cart, onOrderComplete }: CheckoutPageProps) {
                   </div>
                 </div>
 
+                {/* Email & Phone */}
                 <div className="grid gap-4 sm:grid-cols-2">
                   <div>
-                    <label className="mb-2 block text-sm font-medium text-[#334155]">
+                    <label className="mb-1.5 block text-sm font-medium text-[#334155]">
                       Email
                     </label>
                     <input
@@ -233,7 +238,7 @@ export function CheckoutPage({ cart, onOrderComplete }: CheckoutPageProps) {
                   </div>
 
                   <div>
-                    <label className="mb-2 block text-sm font-medium text-[#334155]">
+                    <label className="mb-1.5 block text-sm font-medium text-[#334155]">
                       Phone *
                     </label>
                     <input
@@ -252,8 +257,9 @@ export function CheckoutPage({ cart, onOrderComplete }: CheckoutPageProps) {
                   </div>
                 </div>
 
+                {/* Address */}
                 <div>
-                  <label className="mb-2 block text-sm font-medium text-[#334155]">
+                  <label className="mb-1.5 block text-sm font-medium text-[#334155]">
                     Address *
                   </label>
                   <input
@@ -272,9 +278,10 @@ export function CheckoutPage({ cart, onOrderComplete }: CheckoutPageProps) {
                   )}
                 </div>
 
+                {/* City & Country */}
                 <div className="grid gap-4 sm:grid-cols-2">
                   <div>
-                    <label className="mb-2 block text-sm font-medium text-[#334155]">
+                    <label className="mb-1.5 block text-sm font-medium text-[#334155]">
                       City *
                     </label>
                     <input
@@ -293,7 +300,7 @@ export function CheckoutPage({ cart, onOrderComplete }: CheckoutPageProps) {
                   </div>
 
                   <div>
-                    <label className="mb-2 block text-sm font-medium text-[#334155]">
+                    <label className="mb-1.5 block text-sm font-medium text-[#334155]">
                       Country
                     </label>
                     <select
@@ -310,8 +317,9 @@ export function CheckoutPage({ cart, onOrderComplete }: CheckoutPageProps) {
                   </div>
                 </div>
 
+                {/* Delivery Area */}
                 <div>
-                  <label className="mb-2 block text-sm font-medium text-[#334155]">
+                  <label className="mb-1.5 block text-sm font-medium text-[#334155]">
                     Delivery Area *
                   </label>
                   <div className="grid gap-3 sm:grid-cols-2">
@@ -349,7 +357,7 @@ export function CheckoutPage({ cart, onOrderComplete }: CheckoutPageProps) {
                         />
                         <div className="flex items-start gap-3">
                           <div
-                            className={`mt-0.5 flex h-5 w-5 items-center justify-center rounded-full border-2 ${
+                            className={`mt-0.5 flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full border-2 ${
                               address.deliveryZone === id
                                 ? "border-[#2F5D50]"
                                 : errors.deliveryZone
@@ -380,8 +388,9 @@ export function CheckoutPage({ cart, onOrderComplete }: CheckoutPageProps) {
                   </p>
                 </div>
 
+                {/* Payment Method */}
                 <div>
-                  <h3 className="mb-4 text-lg font-semibold text-[#1A2E28]">
+                  <h3 className="mb-3 text-lg font-semibold text-[#1A2E28] lg:mb-4">
                     Payment Method
                   </h3>
                   <div className="space-y-3">
@@ -419,7 +428,7 @@ export function CheckoutPage({ cart, onOrderComplete }: CheckoutPageProps) {
                           className="sr-only"
                         />
                         <div
-                          className={`flex h-5 w-5 items-center justify-center rounded-full border-2 ${
+                          className={`flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full border-2 ${
                             paymentMethod === id
                               ? "border-[#2F5D50]"
                               : "border-[#D1D5DB]"
@@ -436,6 +445,7 @@ export function CheckoutPage({ cart, onOrderComplete }: CheckoutPageProps) {
                   </div>
                 </div>
 
+                {/* Submit Button */}
                 <button
                   type="submit"
                   disabled={isProcessing}
@@ -457,15 +467,17 @@ export function CheckoutPage({ cart, onOrderComplete }: CheckoutPageProps) {
             </div>
           </div>
 
-          <div>
-            <div className="sticky top-24 rounded-3xl border border-[#E5E7EB] bg-white p-6 shadow-lg">
-              <h3 className="mb-6 text-xl font-bold text-[#1A2E28]">
+          {/* Right column – Order Summary (sticky on desktop, normal on mobile) */}
+          <div className="lg:sticky lg:top-24">
+            <div className="rounded-3xl border border-[#E5E7EB] bg-white p-5 shadow-lg lg:p-6">
+              <h3 className="mb-4 text-xl font-bold text-[#1A2E28] lg:mb-6">
                 Order Summary
               </h3>
 
-              <div className="mb-6 space-y-4">
+              {/* Cart items */}
+              <div className="mb-5 space-y-4 lg:mb-6">
                 {cart.items.map(({ product, quantity }) => (
-                  <div key={product.id} className="flex gap-4">
+                  <div key={product.id} className="flex gap-3">
                     <div className="h-16 w-16 flex-shrink-0 overflow-hidden rounded-xl">
                       <img
                         src={product.image}
@@ -478,7 +490,7 @@ export function CheckoutPage({ cart, onOrderComplete }: CheckoutPageProps) {
                         {product.name}
                       </p>
                       <p className="text-xs text-[#4a6b5f]/60">{product.unit}</p>
-                      <div className="mt-1 flex items-center justify-between">
+                      <div className="mt-1 flex flex-wrap items-center justify-between gap-x-2 gap-y-0.5">
                         <span className="text-sm text-[#475569]">Qty: {quantity}</span>
                         <span className="text-sm font-bold text-[#2F5D50]">
                           BDT {(getDiscountedPrice(product) * quantity).toFixed(2)}
@@ -494,6 +506,7 @@ export function CheckoutPage({ cart, onOrderComplete }: CheckoutPageProps) {
                 ))}
               </div>
 
+              {/* Totals */}
               <div className="space-y-2 border-t border-[#E5E7EB] pt-4">
                 <div className="flex justify-between text-sm">
                   <span className="text-[#4a6b5f]">Subtotal</span>
@@ -523,9 +536,10 @@ export function CheckoutPage({ cart, onOrderComplete }: CheckoutPageProps) {
                 </div>
               </div>
 
-              <div className="mt-6 rounded-2xl bg-[#A8C686]/10 p-4">
+              {/* Free delivery message */}
+              <div className="mt-5 rounded-2xl bg-[#A8C686]/10 p-3 lg:mt-6 lg:p-4">
                 <div className="flex items-center gap-2 text-sm text-[#2F5D50]">
-                  <Truck className="h-4 w-4" />
+                  <Truck className="h-4 w-4 flex-shrink-0" />
                   <span>Free delivery on orders of BDT 2,000 or more</span>
                 </div>
               </div>
