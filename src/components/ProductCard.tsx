@@ -12,7 +12,7 @@ export function ProductCard({ product, onAddToCart }: ProductCardProps) {
   const discountedPrice = getDiscountedPrice(product);
 
   return (
-    <div className="group overflow-hidden rounded-2xl border border-[#A8C686]/15 bg-white shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-[#2F5D50]/8">
+    <div className="group relative overflow-hidden rounded-2xl border border-[#A8C686]/15 bg-white shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-[#2F5D50]/8">
       <Link
         to={`/product/${product.id}`}
         className="relative block aspect-[4/3] overflow-hidden"
@@ -24,12 +24,12 @@ export function ProductCard({ product, onAddToCart }: ProductCardProps) {
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black/10 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
         {product.badge && (
-          <span className="absolute left-3 top-3 rounded-full bg-[#F4A261] px-3 py-1 text-xs font-semibold text-white shadow-sm">
+          <span className="absolute left-2 top-2 rounded-full bg-[#F4A261] px-2 py-0.5 text-[10px] font-semibold text-white shadow-sm sm:left-3 sm:top-3 sm:px-3 sm:py-1 sm:text-xs">
             {product.badge}
           </span>
         )}
         {hasDiscount(product) && (
-          <span className="absolute right-3 top-3 rounded-full bg-[#2F5D50] px-3 py-1 text-xs font-semibold text-white shadow-sm">
+          <span className="absolute right-2 top-2 rounded-full bg-[#2F5D50] px-2 py-0.5 text-[10px] font-semibold text-white shadow-sm sm:right-3 sm:top-3 sm:px-3 sm:py-1 sm:text-xs">
             -{product.discountPercent}%
           </span>
         )}
@@ -47,40 +47,38 @@ export function ProductCard({ product, onAddToCart }: ProductCardProps) {
         <ShoppingCart className="h-4 w-4" />
       </button>
 
-      <div className="p-4">
-        <div className="mb-1.5 flex items-start justify-between gap-2">
-          <h3 className="text-sm font-semibold leading-snug text-[#1A2E28]">
-            {product.name}
-          </h3>
-        </div>
+      <div className="p-3 sm:p-4">
+        <h3 className="mb-1 line-clamp-2 text-xs font-semibold leading-snug text-[#1A2E28] sm:text-sm">
+          {product.name}
+        </h3>
 
-        <p className="mb-3 line-clamp-2 text-xs leading-relaxed text-[#4a6b5f]/70">
+        <p className="mb-2 line-clamp-1 text-xs leading-relaxed text-[#4a6b5f]/70 sm:line-clamp-2 sm:mb-3">
           {product.description}
         </p>
 
-        <div className="mb-3 flex items-center gap-1">
-          <Star className="h-3.5 w-3.5 fill-[#F4A261] text-[#F4A261]" />
+        <div className="mb-2 flex items-center gap-1 sm:mb-3">
+          <Star className="h-3 w-3 fill-[#F4A261] text-[#F4A261] sm:h-3.5 sm:w-3.5" />
           <span className="text-xs font-semibold text-[#1A2E28]">
             {product.rating}
           </span>
           <span className="text-xs text-[#4a6b5f]/50">({product.reviews})</span>
         </div>
 
-        <div className="flex items-center justify-between">
-          <div>
-            <span className="text-lg font-bold text-[#2F5D50]">
+        <div className="flex flex-col gap-2">
+          <div className="flex flex-wrap items-baseline gap-x-1 gap-y-0.5">
+            <span className="text-sm font-bold text-[#2F5D50] sm:text-base">
               BDT {discountedPrice.toFixed(2)}
             </span>
             {hasDiscount(product) && (
-              <span className="ml-2 text-xs text-[#64748B] line-through">
+              <span className="text-xs text-[#64748B] line-through">
                 BDT {product.price.toFixed(2)}
               </span>
             )}
-            <span className="ml-1 text-xs text-[#4a6b5f]/60">{product.unit}</span>
+            <span className="text-xs text-[#4a6b5f]/60">{product.unit}</span>
           </div>
           <button
             onClick={() => onAddToCart(product)}
-            className="rounded-full bg-[#A8C686]/25 px-3 py-1.5 text-xs font-medium text-[#2F5D50] transition-all duration-200 hover:bg-[#2F5D50] hover:text-white"
+            className="w-full rounded-full bg-[#A8C686]/25 py-1.5 text-xs font-medium text-[#2F5D50] transition-all duration-200 hover:bg-[#2F5D50] hover:text-white"
           >
             Add to Cart
           </button>

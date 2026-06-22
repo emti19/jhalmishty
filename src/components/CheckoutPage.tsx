@@ -129,8 +129,8 @@ export function CheckoutPage({ cart, onOrderComplete }: CheckoutPageProps) {
 
   if (cart.items.length === 0) {
     return (
-      <div className="min-h-screen bg-[#FAF7F2] px-4 pb-16 pt-24 lg:pb-24 lg:pt-32">
-        <div className="mx-auto max-w-4xl">
+      <div className="min-h-screen overflow-x-hidden bg-[#FAF7F2] px-3 pb-16 pt-24 sm:px-4 lg:pb-24 lg:pt-32">
+        <div className="mx-auto w-full max-w-4xl">
           <div className="text-center">
             <h1 className="mb-4 text-2xl font-bold text-[#1A2E28]">
               Your cart is empty
@@ -148,8 +148,8 @@ export function CheckoutPage({ cart, onOrderComplete }: CheckoutPageProps) {
   }
 
   return (
-    <div className="min-h-screen bg-[#FAF7F2] px-4 pb-16 pt-24 lg:pb-24 lg:pt-32">
-      <div className="mx-auto max-w-7xl">
+    <div className="min-h-screen overflow-x-hidden bg-[#FAF7F2] px-3 pb-16 pt-24 sm:px-4 lg:pb-24 lg:pt-32">
+      <div className="mx-auto w-full max-w-7xl">
         {/* Back button */}
         <div className="mb-6 lg:mb-8">
           <button
@@ -162,9 +162,9 @@ export function CheckoutPage({ cart, onOrderComplete }: CheckoutPageProps) {
         </div>
 
         {/* Main grid: stacks on mobile, side‑by‑side on large screens */}
-        <div className="grid gap-8 lg:grid-cols-2 lg:gap-12">
+        <div className="grid gap-6 lg:grid-cols-2 lg:gap-12">
           {/* Left column – Shipping & Payment */}
-          <div className="space-y-8">
+          <div className="order-2 lg:order-1 space-y-8">
             <div>
               <h2 className="mb-4 text-xl font-bold text-[#1A2E28] lg:mb-6 lg:text-2xl">
                 Shipping Information
@@ -188,7 +188,7 @@ export function CheckoutPage({ cart, onOrderComplete }: CheckoutPageProps) {
                       onChange={(event) =>
                         handleAddressChange("firstName", event.target.value)
                       }
-                      className={`w-full rounded-2xl border bg-[#F8FAFC] px-4 py-3 text-sm focus:border-[#2F5D50] focus:outline-none ${
+                      className={`w-full rounded-2xl border bg-[#F8FAFC] px-4 py-3 text-base sm:text-sm focus:border-[#2F5D50] focus:outline-none ${
                         errors.firstName ? "border-red-300" : "border-[#D1D5DB]"
                       }`}
                     />
@@ -209,7 +209,7 @@ export function CheckoutPage({ cart, onOrderComplete }: CheckoutPageProps) {
                       onChange={(event) =>
                         handleAddressChange("lastName", event.target.value)
                       }
-                      className={`w-full rounded-2xl border bg-[#F8FAFC] px-4 py-3 text-sm focus:border-[#2F5D50] focus:outline-none ${
+                      className={`w-full rounded-2xl border bg-[#F8FAFC] px-4 py-3 text-base sm:text-sm focus:border-[#2F5D50] focus:outline-none ${
                         errors.lastName ? "border-red-300" : "border-[#D1D5DB]"
                       }`}
                     />
@@ -233,7 +233,7 @@ export function CheckoutPage({ cart, onOrderComplete }: CheckoutPageProps) {
                       onChange={(event) =>
                         handleAddressChange("email", event.target.value)
                       }
-                      className="w-full rounded-2xl border border-[#D1D5DB] bg-[#F8FAFC] px-4 py-3 text-sm focus:border-[#2F5D50] focus:outline-none"
+                      className="w-full rounded-2xl border border-[#D1D5DB] bg-[#F8FAFC] px-4 py-3 text-base sm:text-sm focus:border-[#2F5D50] focus:outline-none"
                     />
                   </div>
 
@@ -247,7 +247,7 @@ export function CheckoutPage({ cart, onOrderComplete }: CheckoutPageProps) {
                       onChange={(event) =>
                         handleAddressChange("phone", event.target.value)
                       }
-                      className={`w-full rounded-2xl border bg-[#F8FAFC] px-4 py-3 text-sm focus:border-[#2F5D50] focus:outline-none ${
+                      className={`w-full rounded-2xl border bg-[#F8FAFC] px-4 py-3 text-base sm:text-sm focus:border-[#2F5D50] focus:outline-none ${
                         errors.phone ? "border-red-300" : "border-[#D1D5DB]"
                       }`}
                     />
@@ -269,7 +269,7 @@ export function CheckoutPage({ cart, onOrderComplete }: CheckoutPageProps) {
                       handleAddressChange("address", event.target.value)
                     }
                     placeholder="Street address"
-                    className={`w-full rounded-2xl border bg-[#F8FAFC] px-4 py-3 text-sm focus:border-[#2F5D50] focus:outline-none ${
+                    className={`w-full rounded-2xl border bg-[#F8FAFC] px-4 py-3 text-base sm:text-sm focus:border-[#2F5D50] focus:outline-none ${
                       errors.address ? "border-red-300" : "border-[#D1D5DB]"
                     }`}
                   />
@@ -290,7 +290,7 @@ export function CheckoutPage({ cart, onOrderComplete }: CheckoutPageProps) {
                       onChange={(event) =>
                         handleAddressChange("city", event.target.value)
                       }
-                      className={`w-full rounded-2xl border bg-[#F8FAFC] px-4 py-3 text-sm focus:border-[#2F5D50] focus:outline-none ${
+                      className={`w-full rounded-2xl border bg-[#F8FAFC] px-4 py-3 text-base sm:text-sm focus:border-[#2F5D50] focus:outline-none ${
                         errors.city ? "border-red-300" : "border-[#D1D5DB]"
                       }`}
                     />
@@ -308,7 +308,7 @@ export function CheckoutPage({ cart, onOrderComplete }: CheckoutPageProps) {
                       onChange={(event) =>
                         handleAddressChange("country", event.target.value)
                       }
-                      className="w-full rounded-2xl border border-[#D1D5DB] bg-[#F8FAFC] px-4 py-3 text-sm focus:border-[#2F5D50] focus:outline-none"
+                      className="w-full rounded-2xl border border-[#D1D5DB] bg-[#F8FAFC] px-4 py-3 text-base sm:text-sm focus:border-[#2F5D50] focus:outline-none"
                     >
                       <option value="Bangladesh">Bangladesh</option>
                       <option value="India">India</option>
@@ -337,7 +337,7 @@ export function CheckoutPage({ cart, onOrderComplete }: CheckoutPageProps) {
                     ].map(({ id, label, price }) => (
                       <label
                         key={id}
-                        className={`cursor-pointer rounded-2xl border p-4 transition-colors ${
+                        className={`cursor-pointer rounded-2xl border p-3 transition-colors sm:p-4 ${
                           address.deliveryZone === id
                             ? "border-[#2F5D50] bg-[#2F5D50]/5"
                             : errors.deliveryZone
@@ -370,8 +370,8 @@ export function CheckoutPage({ cart, onOrderComplete }: CheckoutPageProps) {
                             )}
                           </div>
                           <div>
-                            <p className="font-medium text-[#1A2E28]">{label}</p>
-                            <p className="text-sm text-[#4a6b5f]">{price}</p>
+                            <p className="text-sm font-medium text-[#1A2E28]">{label}</p>
+                            <p className="text-xs text-[#4a6b5f]">{price}</p>
                           </div>
                         </div>
                       </label>
@@ -390,7 +390,7 @@ export function CheckoutPage({ cart, onOrderComplete }: CheckoutPageProps) {
 
                 {/* Payment Method */}
                 <div>
-                  <h3 className="mb-3 text-lg font-semibold text-[#1A2E28] lg:mb-4">
+                  <h3 className="mb-3 text-base font-semibold text-[#1A2E28] lg:mb-4 lg:text-lg">
                     Payment Method
                   </h3>
                   <div className="space-y-3">
@@ -404,14 +404,14 @@ export function CheckoutPage({ cart, onOrderComplete }: CheckoutPageProps) {
                         id: "bkash",
                         label: "bKash",
                         icon: () => (
-                          <span className="font-bold text-pink-600">bKash</span>
+                          <span className="flex-shrink-0 rounded bg-pink-500 px-1.5 py-0.5 text-[10px] font-extrabold text-white">b</span>
                         ),
                       },
                       { id: "bank", label: "Bank Transfer", icon: Shield },
                     ].map(({ id, label, icon: Icon }) => (
                       <label
                         key={id}
-                        className={`flex cursor-pointer items-center gap-3 rounded-2xl border p-4 transition-colors ${
+                        className={`flex cursor-pointer items-center gap-3 rounded-2xl border p-3 transition-colors sm:p-4 ${
                           paymentMethod === id
                             ? "border-[#2F5D50] bg-[#2F5D50]/5"
                             : "border-[#D1D5DB] hover:border-[#2F5D50]/50"
@@ -439,7 +439,7 @@ export function CheckoutPage({ cart, onOrderComplete }: CheckoutPageProps) {
                           )}
                         </div>
                         <Icon className="h-5 w-5 text-[#2F5D50]" />
-                        <span className="font-medium text-[#1A2E28]">{label}</span>
+                        <span className="text-sm font-medium text-[#1A2E28]">{label}</span>
                       </label>
                     ))}
                   </div>
@@ -468,17 +468,17 @@ export function CheckoutPage({ cart, onOrderComplete }: CheckoutPageProps) {
           </div>
 
           {/* Right column – Order Summary (sticky on desktop, normal on mobile) */}
-          <div className="lg:sticky lg:top-24">
-            <div className="rounded-3xl border border-[#E5E7EB] bg-white p-5 shadow-lg lg:p-6">
-              <h3 className="mb-4 text-xl font-bold text-[#1A2E28] lg:mb-6">
+          <div className="order-1 lg:order-2 lg:sticky lg:top-24">
+            <div className="overflow-hidden rounded-3xl border border-[#E5E7EB] bg-white p-4 shadow-lg sm:p-5 lg:p-6">
+              <h3 className="mb-4 text-lg font-bold text-[#1A2E28] sm:text-xl lg:mb-6">
                 Order Summary
               </h3>
 
               {/* Cart items */}
-              <div className="mb-5 space-y-4 lg:mb-6">
+              <div className="mb-4 space-y-3 sm:mb-5 sm:space-y-4 lg:mb-6">
                 {cart.items.map(({ product, quantity }) => (
-                  <div key={product.id} className="flex gap-3">
-                    <div className="h-16 w-16 flex-shrink-0 overflow-hidden rounded-xl">
+                  <div key={product.id} className="flex min-w-0 gap-3">
+                    <div className="h-14 w-14 flex-shrink-0 overflow-hidden rounded-xl sm:h-16 sm:w-16">
                       <img
                         src={product.image}
                         alt={product.name}
@@ -490,16 +490,18 @@ export function CheckoutPage({ cart, onOrderComplete }: CheckoutPageProps) {
                         {product.name}
                       </p>
                       <p className="text-xs text-[#4a6b5f]/60">{product.unit}</p>
-                      <div className="mt-1 flex flex-wrap items-center justify-between gap-x-2 gap-y-0.5">
-                        <span className="text-sm text-[#475569]">Qty: {quantity}</span>
-                        <span className="text-sm font-bold text-[#2F5D50]">
-                          BDT {(getDiscountedPrice(product) * quantity).toFixed(2)}
-                        </span>
-                        {hasDiscount(product) && (
-                          <span className="text-xs text-[#64748B] line-through">
-                            BDT {(product.price * quantity).toFixed(2)}
-                          </span>
-                        )}
+                      <div className="mt-1 flex items-center justify-between gap-2">
+                        <span className="text-xs text-[#475569]">Qty: {quantity}</span>
+                        <div className="flex-shrink-0 text-right">
+                          <p className="text-sm font-bold text-[#2F5D50]">
+                            BDT {(getDiscountedPrice(product) * quantity).toFixed(2)}
+                          </p>
+                          {hasDiscount(product) && (
+                            <p className="text-xs text-[#64748B] line-through">
+                              BDT {(product.price * quantity).toFixed(2)}
+                            </p>
+                          )}
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -508,37 +510,40 @@ export function CheckoutPage({ cart, onOrderComplete }: CheckoutPageProps) {
 
               {/* Totals */}
               <div className="space-y-2 border-t border-[#E5E7EB] pt-4">
-                <div className="flex justify-between text-sm">
+                <div className="flex justify-between gap-2 text-sm">
                   <span className="text-[#4a6b5f]">Subtotal</span>
-                  <span className="font-medium text-[#1A2E28]">
+                  <span className="flex-shrink-0 font-medium text-[#1A2E28]">
                     BDT {cart.total.toFixed(2)}
                   </span>
                 </div>
-                <div className="flex justify-between text-sm">
-                  <span className="text-[#4a6b5f]">
-                    Delivery (
-                    {address.deliveryZone
-                      ? getDeliveryZoneLabel(address.deliveryZone)
-                      : "Select delivery area"}
-                    )
-                  </span>
-                  <span className="font-medium text-[#1A2E28]">
-                    {!address.deliveryZone
-                      ? "Select area"
-                      : shipping === 0
-                        ? "Free"
-                        : `BDT ${shipping.toFixed(2)}`}
-                  </span>
+                <div className="text-sm">
+                  <div className="flex justify-between gap-2">
+                    <span className="text-[#4a6b5f]">Delivery</span>
+                    <span className="flex-shrink-0 font-medium text-[#1A2E28]">
+                      {!address.deliveryZone
+                        ? "Select area"
+                        : shipping === 0
+                          ? "Free"
+                          : `BDT ${shipping.toFixed(2)}`}
+                    </span>
+                  </div>
+                  {address.deliveryZone && (
+                    <p className="mt-0.5 text-xs text-[#4a6b5f]/70">
+                      {getDeliveryZoneLabel(address.deliveryZone)}
+                    </p>
+                  )}
                 </div>
-                <div className="flex justify-between border-t border-[#E5E7EB] pt-2 text-lg font-bold">
-                  <span className="text-[#1A2E28]">Total</span>
-                  <span className="text-[#2F5D50]">BDT {total.toFixed(2)}</span>
+                <div className="flex justify-between gap-2 border-t border-[#E5E7EB] pt-2 font-bold">
+                  <span className="text-base text-[#1A2E28] sm:text-lg">Total</span>
+                  <span className="text-base text-[#2F5D50] sm:text-lg">
+                    BDT {total.toFixed(2)}
+                  </span>
                 </div>
               </div>
 
               {/* Free delivery message */}
-              <div className="mt-5 rounded-2xl bg-[#A8C686]/10 p-3 lg:mt-6 lg:p-4">
-                <div className="flex items-center gap-2 text-sm text-[#2F5D50]">
+              <div className="mt-4 rounded-2xl bg-[#A8C686]/10 p-3 sm:mt-5 lg:mt-6 lg:p-4">
+                <div className="flex items-center gap-2 text-xs text-[#2F5D50] sm:text-sm">
                   <Truck className="h-4 w-4 flex-shrink-0" />
                   <span>Free delivery on orders of BDT 2,000 or more</span>
                 </div>
