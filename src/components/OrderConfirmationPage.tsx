@@ -50,8 +50,8 @@ export function OrderConfirmationPage() {
 
             <div className="space-y-4">
               {order.items.map(({ product, quantity }) => (
-                <div key={product.id} className="flex gap-4">
-                  <div className="h-16 w-16 flex-shrink-0 overflow-hidden rounded-xl">
+                <div key={product.id} className="flex gap-3 sm:gap-4">
+                  <div className="h-14 w-14 sm:h-16 sm:w-16 flex-shrink-0 overflow-hidden rounded-xl">
                     <img
                       src={product.image}
                       alt={product.name}

@@ -79,7 +79,7 @@ export function Hero({ slides }: HeroProps) {
               সংগ্রহ করি। প্রতিটি উপাদান সতেজতা, স্বাদ এবং আপনার সুস্থতার কথা
               মাথায় রেখে যত্নসহকারে নির্বাচন করা হয়।
             </p>
-            <div className="flex flex-wrap gap-4 mb-12">
+            <div className="flex flex-wrap gap-4 mb-6 sm:mb-12">
               <Link
                 to="/products"
                 className="inline-flex items-center gap-2 bg-[#2F5D50] hover:bg-[#264d43] text-white px-7 py-3.5 rounded-full font-medium transition-all duration-200 hover:shadow-lg hover:shadow-[#2F5D50]/20 hover:-translate-y-0.5"
@@ -172,7 +172,7 @@ export function Hero({ slides }: HeroProps) {
               )}
             </div>
 
-            <div className="absolute -bottom-4 -left-4 bg-white rounded-2xl p-4 shadow-xl border border-[#A8C686]/20">
+            <div className="absolute -bottom-4 -left-4 bg-white rounded-2xl p-4 shadow-xl border border-[#A8C686]/20 hidden sm:block">
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 bg-[#F4A261]/15 rounded-xl flex items-center justify-center">
                   <span className="text-lg">🌿</span>
@@ -188,7 +188,7 @@ export function Hero({ slides }: HeroProps) {
               </div>
             </div>
 
-            <div className="absolute -top-4 -right-4 bg-[#2F5D50] rounded-2xl p-4 shadow-xl text-white">
+            <div className="absolute -top-4 -right-4 bg-[#2F5D50] rounded-2xl p-4 shadow-xl text-white hidden sm:block">
               <p className="text-2xl font-bold">4.9</p>
               <p className="text-xs text-[#A8C686]">Rating</p>
               <div className="flex gap-0.5 mt-1">

@@ -243,7 +243,7 @@ export function AdminSliderManagement({
           Loading slider settings...
         </div>
       ) : (
-        <div className="mt-6 grid gap-6 lg:grid-cols-3">
+        <div className="mt-6 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {HERO_SLIDE_POSITIONS.map((position) => {
             const draft = drafts[position];
             const hasPreview = Boolean(draft.previewUrl);

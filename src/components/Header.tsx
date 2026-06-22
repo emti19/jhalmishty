@@ -18,7 +18,7 @@ export function Header({ cart, onCartOpen }: HeaderProps) {
         <div className="flex items-center justify-between h-16">
           <div className="flex items-center gap-2">
             <a href="/">
-              <img src={logo} alt="Farm Logo" className="h-10 w-auto md:h-24" />
+              <img src={logo} alt="Farm Logo" className="h-10 w-auto md:h-12" />
             </a>
           </div>
 
